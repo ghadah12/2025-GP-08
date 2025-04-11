@@ -1,0 +1,165 @@
+import 'package:flutter/material.dart';
+
+class LawyerSignup extends StatefulWidget {
+  const LawyerSignup({super.key});
+
+  @override
+  State<LawyerSignup> createState() => _LawyerSignupState();
+}
+
+class _LawyerSignupState extends State<LawyerSignup> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _licenseController = TextEditingController();
+
+  String? _selectedSpecialty;
+  String? _uploadedImageUrl; // تستخدم بعد إضافة ميزة رفع الصورة
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF062531),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Column(
+              children: [
+                // صورة المحامي
+                GestureDetector(
+                  onTap: () {
+                    // TODO: أضف ميزة رفع الصورة
+                  },
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _uploadedImageUrl != null
+                        ? NetworkImage(_uploadedImageUrl!)
+                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider,
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // رقم الجوال
+                      _buildTextField(
+                        controller: _phoneController,
+                        label: 'رقم الجوال',
+                        keyboardType: TextInputType.phone,
+                      ),
+
+                      // المدينة
+                      _buildTextField(
+                        controller: _cityController,
+                        label: 'المدينة',
+                        keyboardType: TextInputType.text,
+                      ),
+
+                      // التخصص
+                      DropdownButtonFormField<String>(
+                        value: _selectedSpecialty,
+                        items: const [
+                          DropdownMenuItem(value: 'قوانين الأسرة', child: Text('قوانين الأسرة')),
+                          DropdownMenuItem(value: 'عقود الإيجار', child: Text('عقود الإيجار')),
+                          DropdownMenuItem(value: 'مخالفات المرور', child: Text('مخالفات المرور')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSpecialty = value;
+                          });
+                        },
+                        decoration: _inputDecoration(label: 'التخصص'),
+                      ),
+
+                      // سعر الاستشارة
+                      _buildTextField(
+                        controller: _priceController,
+                        label: 'سعر الأستشارة',
+                        keyboardType: TextInputType.number,
+                      ),
+
+                      // رقم رخصة المحاماة
+                      _buildTextField(
+                        controller: _licenseController,
+                        label: 'رقم رخصة المحاماة',
+                        keyboardType: TextInputType.text,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // زر التسجيل
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // TODO: نفذ إنشاء الحساب وحفظ البيانات
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA6847C),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                        ),
+                        child: const Text(
+                          'إنشاء الحساب',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget مساعد لحقل نصي
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required TextInputType keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.black),
+        decoration: _inputDecoration(label: label),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'هذا الحقل مطلوب';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  // ديكوريشن موحد
+  InputDecoration _inputDecoration({required String label}) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(40)),
+    );
+  }
+}
