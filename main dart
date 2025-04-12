@@ -5,8 +5,8 @@ import 'HomePage.dart';
 import 'logOut.dart'; 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ⬅️ ضروري قبل Firebase
-  await Firebase.initializeApp(); // ⬅️ هذه الإضافة المهمة
+  WidgetsFlutterBinding.ensureInitialized(); 
+  await Firebase.initializeApp(); 
   runApp(const MyApp());
 }
 
