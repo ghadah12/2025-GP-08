@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'HomePage.dart'; 
 
 class UserSignIn extends StatefulWidget {
   const UserSignIn({super.key});
@@ -38,20 +41,75 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // ✅ إنشاء الحساب وتخزين البيانات + التوجيه
+  Future<void> registerUser() async {
+    try {
+      UserCredential userCredential =
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailSignUpController.text.trim(),
+        password: _passwordSignUpController.text.trim(),
+      );
+
+      String uid = userCredential.user!.uid;
+
+      await FirebaseFirestore.instance.collection('Individual').doc(uid).set({
+        'uid': uid,
+        'email': _emailSignUpController.text.trim(),
+        'display_name': _usernameController.text.trim(),
+        'phone_number': '',
+        'photo_url': '',
+        'created_time': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ تم إنشاء الحساب بنجاح!')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ حدث خطأ: $e')),
+      );
+    }
+  }
+
+  // ✅ تسجيل الدخول + التوجيه
+  Future<void> loginUser() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailLoginController.text.trim(),
+        password: _passwordLoginController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ تم تسجيل الدخول')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ خطأ في تسجيل الدخول: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // الخلفية
           Positioned.fill(
             child: Image.asset(
               'assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // زر الرجوع
           Positioned(
             top: 50,
             left: 16,
@@ -60,8 +118,6 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
               onPressed: () => Navigator.pop(context),
             ),
           ),
-
-          // التبويبات والمحتوى
           Center(
             child: Column(
               children: [
@@ -112,9 +168,9 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 24),
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formLoginKey.currentState!.validate()) {
-                                    // نفذ تسجيل الدخول
+                                    await loginUser();
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -190,9 +246,9 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 24),
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formSignUpKey.currentState!.validate()) {
-                                    // نفذ إنشاء الحساب
+                                    await registerUser();
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
