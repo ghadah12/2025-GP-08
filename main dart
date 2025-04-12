@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       home: const WelcomeWidget(),
       routes: {
         HomePage.routeName: (context) => const HomePage(),
-        LogOutPage.routeName: (context) => const LogOutPage(), // ✅ ربط صفحة LogOut
+        LogOutPage.routeName: (context) => const LogOutPage(), 
       },
     );
   }
