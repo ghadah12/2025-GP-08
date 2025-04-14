@@ -1,166 +1,219 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 
 class LogOutPage extends StatefulWidget {
   const LogOutPage({super.key});
 
-    static const String routeName = '/logOut';
+  static const String routeName = '/logOut';
 
   @override
   State<LogOutPage> createState() => _LogOutPageState();
 }
-
 class _LogOutPageState extends State<LogOutPage> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  final TextEditingController emailController =
-      TextEditingController(); // initialized in initState
-  final TextEditingController nameController =
-      TextEditingController(); // initialized in initState
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+
+  bool isDarkMode = false;
+  bool notificationsEnabled = false;
+
+  final currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-
-    final user = FirebaseAuth.instance.currentUser;
-    emailController.text = user?.email ?? '';
-    nameController.text = user?.displayName ?? '';
+    fetchUserData();
   }
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    nameController.dispose();
-    super.dispose();
+  Future<void> fetchUserData() async {
+    if (currentUser != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection("Individual")
+          .doc(currentUser!.uid)
+          .get();
+
+      final data = doc.data();
+      if (data != null) {
+        _emailController.text = data['email'] ?? '';
+        _nameController.text = data['username'] ?? '';
+        setState(() {
+          isDarkMode = data['isDarkMode'] ?? false;
+          notificationsEnabled = data['notifications'] ?? false;
+        });
+      }
+    }
+  }
+
+  Future<void> saveChanges() async {
+    final email = _emailController.text.trim();
+    final name = _nameController.text.trim();
+
+    if (currentUser != null) {
+      final uid = currentUser!.uid;
+
+      await FirebaseFirestore.instance.collection("Individual").doc(uid).update({
+        'email': email,
+        'username': name,
+        'isDarkMode': isDarkMode,
+        'notifications': notificationsEnabled,
+      });
+
+      await currentUser!.updateDisplayName(name);
+      await FirebaseAuth.instance.currentUser!.reload();
+      final updatedUser = FirebaseAuth.instance.currentUser;
+      print(updatedUser?.displayName); // للتأكد أنه انحدث فعلاً
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("تم حفظ التعديلات بنجاح")),
+      );
+
+      // لو تستخدمين Provider أو أي طريقة لتغيير الثيم، سوي setState أو notifyListeners هنا
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final userPhoto = user?.photoURL ??
-        'https://via.placeholder.com/150'; // fallback image
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: Colors.white,
-        body: Column(
+    return Scaffold(
+      backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF2F5F7),
+      body: SafeArea(
+        child: Column(
           children: [
             Container(
-              width: double.infinity,
-              height: 165,
-              color: const Color(0xFF9B7D73),
+              color: const Color(0xFF9D7D6C),
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              alignment: Alignment.center,
+              child: const CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Container 1: المعلومات الشخصية
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Material(
-                    elevation: 4.0,
-                    shape: const CircleBorder(),
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.white,
-                      backgroundImage: NetworkImage(userPhoto),
-                    ),
+                  const Text(
+                    'الملف الشخصي',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 20),
+                  buildTextField("البريد الإلكتروني", _emailController),
+                  const SizedBox(height: 12),
+                  buildTextField("اسم المستخدم", _nameController),
                 ],
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // Container 2: الإعدادات
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'الإعدادات',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  buildSwitchTile("الإشعارات", notificationsEnabled, (value) {
+                    setState(() {
+                      notificationsEnabled = value;
+                    });
+                  }),
+                  const SizedBox(height: 12),
+                  buildSwitchTile("المظهر", isDarkMode, (value) {
+                    setState(() {
+                      isDarkMode = value;
+                      // هنا لو تستخدمين theme provider سوي notifyListeners
+                    });
+                  }),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 20),
-            Material(
-              elevation: 2,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+
+            ElevatedButton(
+              onPressed: saveChanges,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF9D7D6C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'الملف الشخصي',
-                        style: TextStyle(
-                          fontFamily: 'Inter Tight',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    buildInfoRow('البريد الإلكتروني', emailController),
-                    const SizedBox(height: 16),
-                    buildInfoRow('الاسم', nameController),
-                  ],
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               ),
+              child: const Text('حفظ'),
             ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  if (context.mounted) {
-                    Navigator.of(context)
-                        .pushReplacementNamed('/welcome'); // أو اسم الصفحة الرئيسية
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9B7D73),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
-                  ),
+
+            const SizedBox(height: 12),
+
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+
+                if (!mounted) return;
+                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF9D7D6C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                child: const Text(
-                  'تسجيل الخروج',
-                  style: TextStyle(
-                    fontFamily: 'Inter Tight',
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               ),
+              child: const Text('تسجيل خروج'),
             ),
+
           ],
         ),
       ),
     );
   }
 
-  Widget buildInfoRow(String label, TextEditingController controller) {
+  Widget buildTextField(String label, TextEditingController controller) {
     return Row(
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 14,
-            color: Colors.black,
-          ),
-        ),
-        const Spacer(),
-        SizedBox(
-          width: 200,
-          child: TextFormField(
+        Expanded(flex: 2, child: Text(label, textAlign: TextAlign.right)),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 5,
+          child: TextField(
             controller: controller,
-            readOnly: true,
             decoration: const InputDecoration(
               filled: true,
-              fillColor: Color(0xFFF5F5F5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              fillColor: Color(0xFFE5E8EC),
+              border: OutlineInputBorder(borderSide: BorderSide.none),
             ),
+            textAlign: TextAlign.right,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSwitchTile(String label, bool value, Function(bool) onChanged) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, textAlign: TextAlign.right),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: const Color(0xFF9D7D6C),
         ),
       ],
     );
