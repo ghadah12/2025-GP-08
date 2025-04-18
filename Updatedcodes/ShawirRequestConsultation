@@ -316,9 +316,40 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                           ),
                           onPressed: isAgreed
                               ? () async {
+                            if (selectedCategory == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار تصنيف الاستشارة', textAlign: TextAlign.center,)),
+                              );
+                              return;
+                            }
+                            if (descriptionController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء كتابة وصف الاستشارة', textAlign: TextAlign.center,)),
+                              );
+                              return;
+                            }
+                            if (!forAllLawyers && !forSpecificLawyer) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار "لكل المحامين" أو "محامي محدد"', textAlign: TextAlign.center,)),
+                              );
+                              return;
+                            }
+                            if (forAllLawyers && priceController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء إدخال سعر الاستشارة', textAlign: TextAlign.center,)),
+                              );
+                              return;
+                            }
+                            if (forSpecificLawyer && (selectedLawyer == null || selectedLawyer!.isEmpty)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار اسم المحامي', textAlign: TextAlign.center,)),
+                              );
+                              return;
+                            }
+
                             final user = FirebaseAuth.instance.currentUser;
                             if (user == null || user.isAnonymous) {
-                              print(" لم يتم العثور على مستخدم مسجل");
+                              print(" لم يتم العثور على مستخدم مسجل", );
                               return;
                             }
 
@@ -335,23 +366,22 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
 
                             print(' تم حفظ الطلب بنجاح!!');
 
-
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                backgroundColor: Colors.grey,
+
                                 content: const Text(
-                                  'تم إرسال الطلب بنجاح !!',
+                                  '!! تم إرسال الطلب بنجاح',
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,   // ← (اختياري) خط عريض
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
                             );
+
                             await Future.delayed(const Duration(seconds: 3));
                             Navigator.pop(context, 'submitted');
-
                           }
                               : null,
                           child: const Text('إرسال الطلب'),
