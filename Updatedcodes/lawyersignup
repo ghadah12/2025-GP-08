@@ -83,12 +83,21 @@ class _LawyerSignupState extends State<LawyerSignup> {
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png.jpg'), // بدون تغيير الاسم
+                image: AssetImage('assets/images/userlawyer.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
             child: Column(
               children: [
+                // ✅ زر الرجوع
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+
                 GestureDetector(
                   onTap: () {
                     // TODO: أضف ميزة رفع الصورة
@@ -98,7 +107,7 @@ class _LawyerSignupState extends State<LawyerSignup> {
                     backgroundColor: Colors.white,
                     backgroundImage: _uploadedImageUrl != null
                         ? NetworkImage(_uploadedImageUrl!)
-                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider, // بدون تغيير الاسم
+                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider,
                   ),
                 ),
                 const SizedBox(height: 30),
