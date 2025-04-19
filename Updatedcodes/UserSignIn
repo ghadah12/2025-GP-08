@@ -126,7 +126,12 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ خطأ في تسجيل الدخول: $e')),
+        const SnackBar(
+          content: Text(
+            '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            textAlign: TextAlign.center,
+          ),
+        ),
       );
     }
   }
