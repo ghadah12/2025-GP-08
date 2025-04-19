@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserInfoCard extends StatefulWidget {
+class UserInfoInCard extends StatefulWidget {
   final String name;
   final String type;
   final String description;
   final String docId;
   final String status;
 
-  const UserInfoCard({
+  const UserInfoInCard({
     super.key,
     required this.name,
     required this.type,
@@ -18,10 +18,10 @@ class UserInfoCard extends StatefulWidget {
   });
 
   @override
-  State<UserInfoCard> createState() => _UserInfoCardState();
+  State<UserInfoInCard> createState() => _UserInfoInCardState();
 }
 
-class _UserInfoCardState extends State<UserInfoCard> {
+class _UserInfoInCardState extends State<UserInfoInCard> {
   bool _isButtonDisabled = false;
   String phoneNumber = '';
   String selectedPrice = '';
