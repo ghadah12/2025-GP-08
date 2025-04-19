@@ -18,6 +18,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
     'pending': 'قيد الانتظار',
     'accepted': 'مقبول',
     'rejected': 'مرفوض',
+    'completed': 'تمت المعالجة',
   };
 
   @override
@@ -111,7 +112,11 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           final status = data['status'];
                           final selectedLawyer = data['selected_lawyer_uid'];
                           final rejectedBy = List<String>.from(data['rejected_by'] ?? []);
-                          final currentUid = FirebaseAuth.instance.currentUser?.uid;
+                          final currentUid = currentUser?.uid;
+
+                          if (selectedStatus == 'completed') {
+                            return status == 'completed' && selectedLawyer == currentUid;
+                          }
 
                           if (selectedLawyer != null && selectedLawyer != currentUid) {
                             return rejectedBy.contains(currentUid);
@@ -129,12 +134,10 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                             return status == 'pending' && !rejectedBy.contains(currentUid);
                           }
 
-                          // ✅ هذا هو السطر الجديد لخيار \"الكل\" ويطبق نفس المنطق
                           return status == 'pending' && !rejectedBy.contains(currentUid) ||
                               (status == 'accepted' && selectedLawyer == currentUid) ||
                               rejectedBy.contains(currentUid);
                         }).toList();
-
 
                         return ListView.separated(
                           padding: const EdgeInsets.only(bottom: 30),
@@ -176,6 +179,8 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                           name: name,
                                           type: type,
                                           description: description,
+                                          docId: docId,
+                                          status: status,
                                         ),
                                       ),
                                     );
@@ -267,7 +272,7 @@ class _ConsultationCard extends StatelessWidget {
               ] else ...[
                 Center(
                   child: Text(
-                    status == 'accepted' ? 'تم القبول' : 'تم الرفض',
+                    status == 'accepted' ? 'تم القبول' : status == 'completed' ? 'تمت المعالجة' : 'تم الرفض',
                     style: const TextStyle(
                       color: Color(0xFF052532),
                       fontWeight: FontWeight.bold,
