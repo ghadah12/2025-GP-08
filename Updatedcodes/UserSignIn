@@ -23,6 +23,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
 
   final _emailSignUpController = TextEditingController();
   final _usernameController = TextEditingController();
+  final _phoneNumberController = TextEditingController(); // ✅ تمت الإضافة هنا
   final _passwordSignUpController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -39,48 +40,10 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
     _passwordLoginController.dispose();
     _emailSignUpController.dispose();
     _usernameController.dispose();
+    _phoneNumberController.dispose(); // ✅ تمت الإضافة هنا
     _passwordSignUpController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  // ✅ إنشاء الحساب وتخزين البيانات + التوجيه
-  Future<void> registerUser() async {
-    try {
-      UserCredential userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailSignUpController.text.trim(),
-        password: _passwordSignUpController.text.trim(),
-      );
-
-      await userCredential.user!.updateDisplayName(_usernameController.text.trim());
-
-      String uid = userCredential.user!.uid;
-
-
-      await FirebaseFirestore.instance.collection('Individual').doc(uid).set({
-        'uid': uid,
-        'email': _emailSignUpController.text.trim(),
-        'display_name': _usernameController.text.trim(),
-        'phone_number': '',
-        'photo_url': '',
-        'created_time': FieldValue.serverTimestamp(),
-        'userType': 'individual',
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ تم إنشاء الحساب بنجاح!')),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ حدث خطأ: $e')),
-      );
-    }
   }
 
   Future<void> loginUser() async {
@@ -92,17 +55,14 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
 
       final uid = credential.user!.uid;
 
-      // ✅ التحقق من أن المستخدم موجود في مجموعة Individual
       final doc = await FirebaseFirestore.instance.collection('Individual').doc(uid).get();
 
       if (!doc.exists) {
-        // المستخدم ليس من النوع Individual
         await FirebaseAuth.instance.signOut();
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              '❌ لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
+              ' لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
               textAlign: TextAlign.center,
             ),
           ),
@@ -110,11 +70,10 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
         return;
       }
 
-      // ✅ مستخدم صحيح
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            '✅ تم تسجيل الدخول',
+            ' تم تسجيل الدخول',
             textAlign: TextAlign.center,
           ),
         ),
@@ -128,7 +87,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            ' البريد الإلكتروني أو كلمة المرور غير صحيحة',
             textAlign: TextAlign.center,
           ),
         ),
@@ -174,7 +133,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      // تبويب تسجيل الدخول
+                      // ✅ تبويب تسجيل الدخول
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -201,7 +160,9 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _obscureLoginPassword ? Icons.visibility_off : Icons.visibility,
+                                      _obscureLoginPassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -213,7 +174,6 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                 validator: (value) =>
                                 value!.isEmpty ? 'أدخل كلمة المرور' : null,
                               ),
-
                               const SizedBox(height: 24),
                               ElevatedButton(
                                 onPressed: () async {
@@ -227,9 +187,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                     borderRadius: BorderRadius.circular(40),
                                   ),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 16,
-                                  ),
+                                      horizontal: 32, vertical: 16),
                                 ),
                                 child: const Text('تسجيل الدخول'),
                               ),
@@ -238,7 +196,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      // تبويب إنشاء حساب
+                      // ✅ تبويب إنشاء حساب
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -268,6 +226,23 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
+                                controller: _phoneNumberController, // ✅ رقم الجوال
+                                keyboardType: TextInputType.phone,
+                                decoration: const InputDecoration(
+                                  labelText: 'رقم الجوال',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'أدخل رقم الجوال';
+                                  } else if (!RegExp(r'^[0-9]{9,15}$').hasMatch(value)) {
+                                    return 'رقم الجوال غير صالح';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
                                 controller: _passwordSignUpController,
                                 obscureText: _obscureSignUpPassword,
                                 decoration: InputDecoration(
@@ -275,7 +250,9 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _obscureSignUpPassword ? Icons.visibility_off : Icons.visibility,
+                                      _obscureSignUpPassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -300,9 +277,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                   }
                                   return null;
                                 },
-
                               ),
-
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _confirmPasswordController,
@@ -312,7 +287,9 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                                      _obscureConfirmPassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -328,12 +305,57 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                   return null;
                                 },
                               ),
-
                               const SizedBox(height: 24),
                               ElevatedButton(
                                 onPressed: () async {
                                   if (_formSignUpKey.currentState!.validate()) {
-                                    await registerUser();
+                                    try {
+                                      UserCredential userCredential =
+                                      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                        email: _emailSignUpController.text.trim(),
+                                        password: _passwordSignUpController.text.trim(),
+                                      );
+
+                                      await userCredential.user!.updateDisplayName(_usernameController.text.trim());
+
+                                      String uid = userCredential.user!.uid;
+
+                                      await FirebaseFirestore.instance.collection('Individual').doc(uid).set({
+                                        'uid': uid,
+                                        'email': _emailSignUpController.text.trim(),
+                                        'display_name': _usernameController.text.trim(),
+                                        'phone_number': _phoneNumberController.text.trim(),
+                                        'photo_url': '',
+                                        'created_time': FieldValue.serverTimestamp(),
+                                        'userType': 'individual',
+                                      });
+
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            ' تم إنشاء الحساب بنجاح!',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      );
+
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const HomePage()),
+                                      );
+                                    } on FirebaseAuthException catch (e) {
+                                      String errorMessage = ' حدث خطأ أثناء إنشاء الحساب';
+
+                                      if (e.code == 'invalid-email') {
+                                        errorMessage = ' صيغة البريد الإلكتروني غير صحيحة';
+                                      } else if (e.code == 'email-already-in-use') {
+                                        errorMessage = ' هذا البريد الإلكتروني مستخدم مسبقًا';
+                                      }
+
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(errorMessage, textAlign: TextAlign.center)),
+                                      );
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
