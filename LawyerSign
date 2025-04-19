@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'HomePage.dart';
+import 'LawyerSignup.dart';
+import 'waitingApproved.dart';
 
 class LawyerSign extends StatefulWidget {
   const LawyerSign({super.key});
@@ -9,6 +15,7 @@ class LawyerSign extends StatefulWidget {
 
 class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
   late TabController _tabController;
+  bool _loginPasswordVisible = false;
 
   final _formLoginKey = GlobalKey<FormState>();
   final _formSignUpKey = GlobalKey<FormState>();
@@ -42,6 +49,59 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  Future<void> loginLawyer() async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailLoginController.text.trim(),
+        password: _passwordLoginController.text.trim(),
+      );
+
+      final uid = credential.user!.uid;
+
+      final doc = await FirebaseFirestore.instance
+          .collection('LegalProfessional')
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        final isApproved = doc.data()?['is_approved'] ?? false;
+
+        if (isApproved == true) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const WaitingApproved()),
+          );
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '✅ تم تسجيل الدخول',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      } else {
+        await FirebaseAuth.instance.signOut();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '❌ لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +109,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png',
+              'assets/images/userlawyer.jpg', // 🔁 حافظت على صورتك الأصلية
               fit: BoxFit.cover,
             ),
           ),
@@ -80,6 +140,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: [
+                      // ✅ تبويب تسجيل الدخول
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -94,23 +155,36 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.emailAddress,
-                                validator: (value) => value!.isEmpty ? 'أدخل البريد الإلكتروني' : null,
+                                validator: (value) =>
+                                value!.isEmpty ? 'أدخل البريد الإلكتروني' : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _passwordLoginController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _loginPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _loginPasswordVisible = !_loginPasswordVisible;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                obscureText: true,
-                                validator: (value) => value!.isEmpty ? 'أدخل كلمة المرور' : null,
+                                obscureText: !_loginPasswordVisible,
+                                validator: (value) =>
+                                value!.isEmpty ? 'أدخل كلمة المرور' : null,
                               ),
+
                               const SizedBox(height: 24),
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formLoginKey.currentState!.validate()) {
-                                    // تنفيذ تسجيل الدخول
+                                    await loginLawyer();
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -126,6 +200,8 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
+
+                      // ✅ تبويب إنشاء حساب
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -140,7 +216,8 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.emailAddress,
-                                validator: (value) => value!.isEmpty ? 'أدخل البريد الإلكتروني' : null,
+                                validator: (value) =>
+                                value!.isEmpty ? 'أدخل البريد الإلكتروني' : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -149,7 +226,8 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                                   labelText: 'اسم المستخدم',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (value) => value!.isEmpty ? 'أدخل اسم المستخدم' : null,
+                                validator: (value) =>
+                                value!.isEmpty ? 'أدخل اسم المستخدم' : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -158,12 +236,19 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                                   labelText: 'كلمة المرور',
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
-                                    icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
-                                    onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
+                                    icon: Icon(
+                                      _passwordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () => setState(() {
+                                      _passwordVisible = !_passwordVisible;
+                                    }),
                                   ),
                                 ),
                                 obscureText: !_passwordVisible,
-                                validator: (value) => value!.isEmpty ? 'أدخل كلمة المرور' : null,
+                                validator: (value) =>
+                                value!.isEmpty ? 'أدخل كلمة المرور' : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -172,8 +257,14 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                                   labelText: 'تأكيد كلمة المرور',
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
-                                    icon: Icon(_confirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                                    onPressed: () => setState(() => _confirmPasswordVisible = !_confirmPasswordVisible),
+                                    icon: Icon(
+                                      _confirmPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () => setState(() {
+                                      _confirmPasswordVisible = !_confirmPasswordVisible;
+                                    }),
                                   ),
                                 ),
                                 obscureText: !_confirmPasswordVisible,
@@ -188,7 +279,16 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                               ElevatedButton(
                                 onPressed: () {
                                   if (_formSignUpKey.currentState!.validate()) {
-                                    // تنفيذ إنشاء الحساب
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LawyerSignup(
+                                          email: _emailSignUpController.text.trim(),
+                                          username: _usernameController.text.trim(),
+                                          password: _passwordSignUpController.text.trim(),
+                                        ),
+                                      ),
+                                    );
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
