@@ -138,7 +138,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/userlawyer.jpg',
+              'assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -279,8 +279,23 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                                     },
                                   ),
                                 ),
-                                validator: (value) =>
-                                value!.isEmpty ? 'أدخل كلمة المرور' : null,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'أدخل كلمة المرور';
+                                  } else if (value.length < 8) {
+                                    return 'كلمة المرور يجب أن تكون على الأقل 8 أحرف';
+                                  } else if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                                    return 'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل';
+                                  } else if (!RegExp(r'[a-z]').hasMatch(value)) {
+                                    return 'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل';
+                                  } else if (!RegExp(r'[0-9]').hasMatch(value)) {
+                                    return 'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل';
+                                  } else if (!RegExp(r'[!@#\$&*~%^()_+=\-]').hasMatch(value)) {
+                                    return 'يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل';
+                                  }
+                                  return null;
+                                },
+
                               ),
 
                               const SizedBox(height: 16),
