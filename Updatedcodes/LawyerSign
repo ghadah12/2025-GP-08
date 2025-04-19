@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ إضافة Firebase Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'HomePage.dart';
-import 'lawyersignup.dart';
-import 'waitingApproved.dart'; // ✅ صفحة الانتظار
+import 'LawyerSignup.dart';
+import 'waitingApproved.dart';
 
 class LawyerSign extends StatefulWidget {
   const LawyerSign({super.key});
@@ -14,6 +15,7 @@ class LawyerSign extends StatefulWidget {
 
 class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
   late TabController _tabController;
+  bool _loginPasswordVisible = false;
 
   final _formLoginKey = GlobalKey<FormState>();
   final _formSignUpKey = GlobalKey<FormState>();
@@ -47,7 +49,6 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // ✅ دالة تسجيل الدخول بعد التعديل
   Future<void> loginLawyer() async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -78,15 +79,26 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ تم تسجيل الدخول')),
+          const SnackBar(
+            content: Text(
+              '✅ تم تسجيل الدخول',
+              textAlign: TextAlign.center,
+            ),
+          ),
         );
       } else {
-        throw 'لا يوجد بيانات لهذا المستخدم في قاعدة البيانات';
+        await FirebaseAuth.instance.signOut();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '❌ لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+        return;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ خطأ في تسجيل الدخول: $e')),
-      );
     }
   }
 
@@ -97,7 +109,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png',
+              'assets/images/userlawyer.jpg', // 🔁 حافظت على صورتك الأصلية
               fit: BoxFit.cover,
             ),
           ),
@@ -149,14 +161,25 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _passwordLoginController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _loginPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _loginPasswordVisible = !_loginPasswordVisible;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                obscureText: true,
+                                obscureText: !_loginPasswordVisible,
                                 validator: (value) =>
                                 value!.isEmpty ? 'أدخل كلمة المرور' : null,
                               ),
+
                               const SizedBox(height: 24),
                               ElevatedButton(
                                 onPressed: () async {
