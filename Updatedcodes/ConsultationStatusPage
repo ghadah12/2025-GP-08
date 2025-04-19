@@ -148,7 +148,6 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                           final type = doc['type']?.toString().trim();
                           final status = doc['status']?.toString().trim();
 
-                          // الترجمة للعربي
                           String statusText = '';
                           switch (status) {
                             case 'pending':
@@ -159,6 +158,9 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                               break;
                             case 'rejected':
                               statusText = 'تم الرفض';
+                              break;
+                            case 'completed':
+                              statusText = 'تمت المعالجة';
                               break;
                           }
 
@@ -209,7 +211,12 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                                         const Text(
                                           "طلبك قيد الانتظار",
                                           style: TextStyle(color: Colors.white),
-                                        ),
+                                        )
+                                      else if (status == 'completed')
+                                          const Text(
+                                            "🎉 تم إنجاز الاستشارة بنجاح",
+                                            style: TextStyle(color: Colors.white),
+                                          ),
                                   ]
                                 ],
                               ),
