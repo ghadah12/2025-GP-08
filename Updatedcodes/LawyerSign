@@ -99,7 +99,16 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         return;
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
+
   }
 
   @override
