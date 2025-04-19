@@ -23,23 +23,68 @@ class UserInfoCard extends StatefulWidget {
 
 class _UserInfoCardState extends State<UserInfoCard> {
   bool _isButtonDisabled = false;
+  String phoneNumber = '';
+  String selectedPrice = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchExtraData();
+  }
+
+  Future<void> fetchExtraData() async {
+    try {
+      final consultationDoc = await FirebaseFirestore.instance
+          .collection('Consultations')
+          .doc(widget.docId)
+          .get();
+
+      if (consultationDoc.exists) {
+        final userUid = consultationDoc['user_uid'];
+        final price = consultationDoc.data().toString().contains('price')
+            ? consultationDoc['price'].toString()
+            : '';
+
+
+        final userDoc = await FirebaseFirestore.instance
+            .collection('Individual')
+            .doc(userUid)
+            .get();
+
+        final phone = userDoc.data().toString().contains('phone_number')
+            ? userDoc['phone_number'].toString()
+            : '';
+
+        setState(() {
+          selectedPrice = price;
+          phoneNumber = phone;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching phone/price: $e');
+    }
+  }
 
   Future<void> markAsCompleted(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تأكيد الإجراء'),
-        content: const Text('هل أنت متأكد من إنهاء الاستشارة؟\nلن تتمكن من التراجع عن هذا الإجراء بعد تأكيده.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('تأكيد'),
-          ),
-        ],
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('تأكيد الإجراء'),
+          content: const Text(
+              'هل أنت متأكد من إنهاء الاستشارة؟\nلن تتمكن من التراجع عن هذا الإجراء بعد تأكيده.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('إلغاء'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('تأكيد'),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -129,51 +174,42 @@ class _UserInfoCardState extends State<UserInfoCard> {
               top: 380,
               left: 20,
               right: 20,
-              child: Container(
-                height: 54,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF062531),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Text(
-                  '  تصنيف الإستشارة : ${widget.type}',
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Inter',
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-              ),
+              child: _infoBox('تصنيف الإستشارة', widget.type),
             ),
+
             Positioned(
-              top: 450,
+              top: 380,
               left: 20,
               right: 20,
-              child: Container(
-                height: 118,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF062531),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Text(
-                    '  الوصف : ${widget.description}',
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Inter',
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ),
+              child: _infoBox('تصنيف الإستشارة', widget.type),
             ),
+
+
+            if (phoneNumber.isNotEmpty)
+              Positioned(
+                top: 450,
+                left: 20,
+                right: 20,
+                child: _infoBox('رقم الجوال', phoneNumber),
+              ),
+
+
+            if (selectedPrice.isNotEmpty)
+              Positioned(
+                top: 520,
+                left: 20,
+                right: 20,
+                child: _infoBox('السعر المقترح', '$selectedPrice ريال'),
+              ),
+
+
+            Positioned(
+              top: 590,
+              left: 20,
+              right: 20,
+              child: _infoBox('الوصف', widget.description, height: 118),
+            ),
+
             if (widget.status == 'accepted')
               Positioned(
                 bottom: 40,
@@ -209,6 +245,30 @@ class _UserInfoCardState extends State<UserInfoCard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoBox(String label, String value, {double height = 54}) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFF062531),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Text(
+          '  $label : $value',
+          textAlign: TextAlign.right,
+          style: const TextStyle(
+            color: Colors.white,
+            fontFamily: 'Inter',
+            fontSize: 16,
+            height: 1.5,
+          ),
         ),
       ),
     );
