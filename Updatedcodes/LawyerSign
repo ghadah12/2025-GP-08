@@ -109,7 +109,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/userlawyer.jpg', // 🔁 حافظت على صورتك الأصلية
+              'assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png',
               fit: BoxFit.cover,
             ),
           ),
