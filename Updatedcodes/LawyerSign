@@ -81,7 +81,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              '✅ تم تسجيل الدخول',
+              ' تم تسجيل الدخول',
               textAlign: TextAlign.center,
             ),
           ),
@@ -91,7 +91,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              '❌ لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
+              ' لا يوجد بيانات لهذا المستخدم في قاعدة البيانات',
               textAlign: TextAlign.center,
             ),
           ),
@@ -102,7 +102,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            ' البريد الإلكتروني أو كلمة المرور غير صحيحة',
             textAlign: TextAlign.center,
           ),
         ),
@@ -149,7 +149,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      // ✅ تبويب تسجيل الدخول
+
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -210,7 +210,7 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      // ✅ تبويب إنشاء حساب
+
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -300,18 +300,40 @@ class _LawyerSignState extends State<LawyerSign> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 24),
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formSignUpKey.currentState!.validate()) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => LawyerSignup(
-                                          email: _emailSignUpController.text.trim(),
-                                          username: _usernameController.text.trim(),
-                                          password: _passwordSignUpController.text.trim(),
-                                        ),
-                                      ),
-                                    );
+                                    try {
+                                      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                        email: _emailSignUpController.text.trim(),
+                                        password: _passwordSignUpController.text.trim(),
+                                      ).then((user) async {
+                                        await user.user!.delete();
+
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => LawyerSignup(
+                                              email: _emailSignUpController.text.trim(),
+                                              username: _usernameController.text.trim(),
+                                              password: _passwordSignUpController.text.trim(),
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                    } on FirebaseAuthException catch (e) {
+                                      String errorMessage = ' حدث خطأ أثناء إنشاء الحساب';
+
+                                      if (e.code == 'invalid-email') {
+                                        errorMessage = ' صيغة البريد الإلكتروني غير صحيحة';
+                                      } else if (e.code == 'email-already-in-use') {
+                                        errorMessage = ' هذا البريد الإلكتروني مستخدم مسبقًا';
+                                      }
+
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(errorMessage, textAlign: TextAlign.center)),
+                                      );
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
