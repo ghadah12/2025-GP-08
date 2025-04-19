@@ -51,6 +51,7 @@ class _LawyerSignupState extends State<LawyerSignup> {
         'photo_url': _uploadedImageUrl ?? '',
         'created_time': Timestamp.now(),
         'is_approved': false,
+        'userType': 'legalProfessional',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +83,7 @@ class _LawyerSignupState extends State<LawyerSignup> {
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png'),
+                image: AssetImage('assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png.jpg'), // بدون تغيير الاسم
                 fit: BoxFit.cover,
               ),
             ),
@@ -90,14 +91,14 @@ class _LawyerSignupState extends State<LawyerSignup> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // TODO: ميزة رفع الصورة لاحقًا
+                    // TODO: أضف ميزة رفع الصورة
                   },
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.white,
                     backgroundImage: _uploadedImageUrl != null
                         ? NetworkImage(_uploadedImageUrl!)
-                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider,
+                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider, // بدون تغيير الاسم
                   ),
                 ),
                 const SizedBox(height: 30),
