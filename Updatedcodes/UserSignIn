@@ -23,7 +23,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
 
   final _emailSignUpController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _phoneNumberController = TextEditingController(); // ✅ تمت الإضافة هنا
+  final _phoneNumberController = TextEditingController();
   final _passwordSignUpController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -40,7 +40,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
     _passwordLoginController.dispose();
     _emailSignUpController.dispose();
     _usernameController.dispose();
-    _phoneNumberController.dispose(); // ✅ تمت الإضافة هنا
+    _phoneNumberController.dispose();
     _passwordSignUpController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -133,7 +133,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      // ✅ تبويب تسجيل الدخول
+
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -196,7 +196,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      // ✅ تبويب إنشاء حساب
+
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -226,7 +226,7 @@ class _UserSignInState extends State<UserSignIn> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
-                                controller: _phoneNumberController, // ✅ رقم الجوال
+                                controller: _phoneNumberController, 
                                 keyboardType: TextInputType.phone,
                                 decoration: const InputDecoration(
                                   labelText: 'رقم الجوال',
