@@ -136,4 +136,9 @@ class _FindByNamePageState extends State<FindByNamePage> {
       unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigation
+        BottomNavigationBarItem(icon: Icon(Icons.chat), label: "My Consultations"),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+      ],
+    );
+  }
+}
