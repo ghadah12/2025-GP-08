@@ -111,19 +111,28 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           final data = doc.data() as Map<String, dynamic>;
                           final status = data['status'];
                           final selectedLawyer = data['selected_lawyer_uid'];
-                          final rejectedBy = List<String>.from(data['rejected_by'] ?? []);
+                          final rejectedBy = data.containsKey('rejected_by') ? List<String>.from(data['rejected_by']) : <String>[];
                           final currentUid = currentUser?.uid;
+
+                          if (selectedLawyer != null && selectedLawyer != currentUid) {
+                            return false;
+                          }
+
+                          if (selectedStatus == 'all') {
+                            return (status == 'pending' &&
+                                (selectedLawyer == null || selectedLawyer == currentUid) &&
+                                !rejectedBy.contains(currentUid)) ||
+                                (status == 'accepted' && selectedLawyer == currentUid) ||
+                                (status == 'completed' && selectedLawyer == currentUid) ||
+                                (status == 'pending' && rejectedBy.contains(currentUid));
+                          }
 
                           if (selectedStatus == 'completed') {
                             return status == 'completed' && selectedLawyer == currentUid;
                           }
 
-                          if (selectedLawyer != null && selectedLawyer != currentUid) {
-                            return rejectedBy.contains(currentUid);
-                          }
-
                           if (selectedStatus == 'rejected') {
-                            return rejectedBy.contains(currentUid);
+                            return status == 'pending' && rejectedBy.contains(currentUid);
                           }
 
                           if (selectedStatus == 'accepted') {
@@ -131,12 +140,12 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           }
 
                           if (selectedStatus == 'pending') {
-                            return status == 'pending' && !rejectedBy.contains(currentUid);
+                            return status == 'pending' &&
+                                (selectedLawyer == null || selectedLawyer == currentUid) &&
+                                !rejectedBy.contains(currentUid);
                           }
 
-                          return status == 'pending' && !rejectedBy.contains(currentUid) ||
-                              (status == 'accepted' && selectedLawyer == currentUid) ||
-                              rejectedBy.contains(currentUid);
+                          return false;
                         }).toList();
 
                         return ListView.separated(
@@ -159,6 +168,9 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                 ? doc['description'].toString()
                                 : 'لا يوجد وصف';
                             final status = doc['status'];
+                            final rejectedBy = doc.data().toString().contains('rejected_by')
+                                ? List<String>.from(doc['rejected_by'])
+                                : <String>[];
 
                             return FutureBuilder<DocumentSnapshot>(
                               future: FirebaseFirestore.instance.collection('Individual').doc(userUid).get(),
@@ -171,11 +183,12 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                   backgroundColor: backgroundColor,
                                   textColor: textColor,
                                   status: status,
+                                  rejectedBy: rejectedBy,
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => UserInfoCard(
+                                        builder: (_) => UserInfoInCard(
                                           name: name,
                                           type: type,
                                           description: description,
@@ -225,6 +238,7 @@ class _ConsultationCard extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final String status;
+  final List<String> rejectedBy;
   final VoidCallback onAccept;
   final VoidCallback onReject;
   final VoidCallback onTap;
@@ -234,6 +248,7 @@ class _ConsultationCard extends StatelessWidget {
     required this.backgroundColor,
     required this.textColor,
     required this.status,
+    required this.rejectedBy,
     required this.onAccept,
     required this.onReject,
     required this.onTap,
@@ -241,6 +256,8 @@ class _ConsultationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -261,7 +278,7 @@ class _ConsultationCard extends StatelessWidget {
               Text('الاسم: $name',
                   style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600)),
               const SizedBox(height: 30),
-              if (status == 'pending') ...[
+              if (status == 'pending' && !rejectedBy.contains(currentUid)) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -272,7 +289,11 @@ class _ConsultationCard extends StatelessWidget {
               ] else ...[
                 Center(
                   child: Text(
-                    status == 'accepted' ? 'تم القبول' : status == 'completed' ? 'تمت المعالجة' : 'تم الرفض',
+                    status == 'accepted'
+                        ? 'تم القبول'
+                        : status == 'completed'
+                        ? 'تمت المعالجة'
+                        : 'تم الرفض',
                     style: const TextStyle(
                       color: Color(0xFF052532),
                       fontWeight: FontWeight.bold,
