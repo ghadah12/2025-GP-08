@@ -122,10 +122,6 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                             return status == 'completed' && selectedLawyer == currentUid;
                           }
 
-                          if (selectedLawyer != null && selectedLawyer != currentUid) {
-                            return rejectedBy.contains(currentUid);
-                          }
-
                           if (selectedStatus == 'rejected') {
                             return rejectedBy.contains(currentUid);
                           }
@@ -163,6 +159,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                 ? doc['description'].toString()
                                 : 'لا يوجد وصف';
                             final status = doc['status'];
+                            final rejectedBy = List<String>.from(doc['rejected_by'] ?? []);
 
                             return FutureBuilder<DocumentSnapshot>(
                               future: FirebaseFirestore.instance.collection('Individual').doc(userUid).get(),
@@ -175,6 +172,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                   backgroundColor: backgroundColor,
                                   textColor: textColor,
                                   status: status,
+                                  rejectedBy: rejectedBy,
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -229,6 +227,7 @@ class _ConsultationCard extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final String status;
+  final List<String> rejectedBy;
   final VoidCallback onAccept;
   final VoidCallback onReject;
   final VoidCallback onTap;
@@ -238,6 +237,7 @@ class _ConsultationCard extends StatelessWidget {
     required this.backgroundColor,
     required this.textColor,
     required this.status,
+    required this.rejectedBy,
     required this.onAccept,
     required this.onReject,
     required this.onTap,
@@ -245,6 +245,8 @@ class _ConsultationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -265,7 +267,7 @@ class _ConsultationCard extends StatelessWidget {
               Text('الاسم: $name',
                   style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600)),
               const SizedBox(height: 30),
-              if (status == 'pending') ...[
+              if (status == 'pending' && !rejectedBy.contains(currentUid)) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -276,7 +278,11 @@ class _ConsultationCard extends StatelessWidget {
               ] else ...[
                 Center(
                   child: Text(
-                    status == 'accepted' ? 'تم القبول' : status == 'completed' ? 'تمت المعالجة' : 'تم الرفض',
+                    status == 'accepted'
+                        ? 'تم القبول'
+                        : status == 'completed'
+                        ? 'تمت المعالجة'
+                        : 'تم الرفض',
                     style: const TextStyle(
                       color: Color(0xFF052532),
                       fontWeight: FontWeight.bold,
@@ -352,4 +358,4 @@ class HeaderClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
-} 
+}
