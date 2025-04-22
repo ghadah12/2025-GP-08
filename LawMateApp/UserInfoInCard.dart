@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserInfoCard extends StatefulWidget {
+class UserInfoInCard extends StatefulWidget {
   final String name;
   final String type;
   final String description;
   final String docId;
   final String status;
 
-  const UserInfoCard({
+  const UserInfoInCard({
     super.key,
     required this.name,
     required this.type,
@@ -18,13 +18,14 @@ class UserInfoCard extends StatefulWidget {
   });
 
   @override
-  State<UserInfoCard> createState() => _UserInfoCardState();
+  State<UserInfoInCard> createState() => _UserInfoInCardState();
 }
 
-class _UserInfoCardState extends State<UserInfoCard> {
+class _UserInfoInCardState extends State<UserInfoInCard> {
   bool _isButtonDisabled = false;
   String phoneNumber = '';
   String selectedPrice = '';
+  String? selectedLawyerUid;
 
   @override
   void initState() {
@@ -41,23 +42,23 @@ class _UserInfoCardState extends State<UserInfoCard> {
 
       if (consultationDoc.exists) {
         final userUid = consultationDoc['user_uid'];
-        final price = consultationDoc.data().toString().contains('price')
-            ? consultationDoc['price'].toString()
-            : '';
-
+        final data = consultationDoc.data()!;
+        final price = data.containsKey('price') ? data['price'].toString() : '';
+        final lawyerUid = data.containsKey('selected_lawyer_uid') ? data['selected_lawyer_uid'] : null;
 
         final userDoc = await FirebaseFirestore.instance
             .collection('Individual')
             .doc(userUid)
             .get();
 
-        final phone = userDoc.data().toString().contains('phone_number')
+        final phone = userDoc.data()!.containsKey('phone_number')
             ? userDoc['phone_number'].toString()
             : '';
 
         setState(() {
           selectedPrice = price;
           phoneNumber = phone;
+          selectedLawyerUid = lawyerUid;
         });
       }
     } catch (e) {
@@ -176,15 +177,6 @@ class _UserInfoCardState extends State<UserInfoCard> {
               right: 20,
               child: _infoBox('تصنيف الإستشارة', widget.type),
             ),
-
-            Positioned(
-              top: 380,
-              left: 20,
-              right: 20,
-              child: _infoBox('تصنيف الإستشارة', widget.type),
-            ),
-
-
             if (phoneNumber.isNotEmpty)
               Positioned(
                 top: 450,
@@ -192,19 +184,15 @@ class _UserInfoCardState extends State<UserInfoCard> {
                 right: 20,
                 child: _infoBox('رقم الجوال', phoneNumber),
               ),
-
-
-            if (selectedPrice.isNotEmpty)
+            if ((selectedLawyerUid == null || selectedLawyerUid!.isEmpty) && selectedPrice.isNotEmpty)
               Positioned(
                 top: 520,
                 left: 20,
                 right: 20,
                 child: _infoBox('السعر المقترح', '$selectedPrice ريال'),
               ),
-
-
             Positioned(
-              top: 590,
+              top: selectedPrice.isNotEmpty && (selectedLawyerUid == null || selectedLawyerUid!.isEmpty) ? 590 : 520,
               left: 20,
               right: 20,
               child: _infoBox('الوصف', widget.description, height: 118),
