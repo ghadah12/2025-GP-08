@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'FindLawyerHomePage.dart';
 
 class ShawirRequestConsultation extends StatefulWidget {
   const ShawirRequestConsultation({super.key});
@@ -20,6 +21,12 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
   bool isAgreed = false;
   String? selectedLawyer;
   List<String> lawyerNames = [];
+  bool hasShownPopup = false;
+  String? selectedLawyerDisplay;
+  String? selectedLawyerId;
+
+
+
 
   final List<String> categories = [
     'قوانين الأسرة',
@@ -31,6 +38,8 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
   void initState() {
     super.initState();
     fetchLawyers();
+
+
   }
 
   void fetchLawyers() async {
@@ -201,10 +210,38 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                       margin: const EdgeInsets.only(top: 10, right: 38, left: 15),
                       child: CheckboxListTile(
                         value: forAllLawyers,
-                        onChanged: (value) => setState(() {
-                          forAllLawyers = value ?? false;
-                          if (forAllLawyers) forSpecificLawyer = false;
-                        }),
+                        onChanged: (value) {
+                          setState(() {
+                            forAllLawyers = value ?? false;
+                            if (forAllLawyers) {
+                              forSpecificLawyer = false;
+                              if (!hasShownPopup) {
+                                hasShownPopup = true;
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Directionality(
+                                      textDirection: TextDirection.rtl,
+                                      child: AlertDialog(
+                                        title: const Text('ملاحظة'),
+                                        content: const Text(
+                                          'هذا الخيار يعني ترسل طلبك وبإمكان أي محامٍ الاطلاع على التفاصيل وقبول الاستشارة إذا كان السعر مناسبًا له',
+                                          textAlign: TextAlign.right,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            child: const Text('حسنًا'),
+                                            onPressed: () => Navigator.of(context).pop(),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            }
+                          });
+                        },
                         title: const Text('لكل المحامين', style: TextStyle(color: Colors.white), textAlign: TextAlign.right),
                         controlAffinity: ListTileControlAffinity.leading,
                       ),
@@ -246,32 +283,66 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                         controlAffinity: ListTileControlAffinity.leading,
                       ),
                     ),
-                    if (forSpecificLawyer)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(top: 10, right: 38, left: 15),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF062531),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: selectedLawyer,
-                            hint: const Text('اختر محامي', style: TextStyle(color: Colors.white), textDirection: TextDirection.rtl),
-                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                            dropdownColor: const Color(0xFF062531),
-                            items: lawyerNames.map((String name) {
-                              return DropdownMenuItem<String>(
-                                value: name,
-                                child: Text(name, style: const TextStyle(color: Colors.white), textDirection: TextDirection.rtl),
-                              );
-                            }).toList(),
-                            onChanged: (value) => setState(() => selectedLawyer = value),
+                    if (forSpecificLawyer) ...[
+                      GestureDetector(
+                        onTap: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const FindLawyerHomePage()),
+                          );
+
+                          if (result != null && result is Map<String, dynamic>) {
+                            setState(() {
+                              selectedLawyerDisplay = result['name'];
+                              selectedLawyerId = result['id'];
+                            });
+                          }
+                        },
+
+
+                        child: Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(top: 10, right: 38, left: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF062531),
+                            borderRadius: BorderRadius.circular(10),
                           ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            textDirection: TextDirection.rtl,
+                            children: const [
+                              Text(
+                                'اختر محامي',
+                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.right,
+                              ),
+                            
+                            ],
+                          ),
+
                         ),
                       ),
+                      if (selectedLawyerDisplay != null) ...[
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(right: 38, left: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF052532),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            selectedLawyerDisplay!,
+                            style: const TextStyle(color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+
+
+                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -316,39 +387,67 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                           ),
                           onPressed: isAgreed
                               ? () async {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user == null || user.isAnonymous) {
-                              print(" لم يتم العثور على مستخدم مسجل");
+                            if (selectedCategory == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار تصنيف الاستشارة', textAlign: TextAlign.center)),
+                              );
                               return;
                             }
+                            if (descriptionController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء كتابة وصف الاستشارة', textAlign: TextAlign.center)),
+                              );
+                              return;
+                            }
+                            if (!forAllLawyers && !forSpecificLawyer) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار "لكل المحامين" أو "محامي محدد"', textAlign: TextAlign.center)),
+                              );
+                              return;
+                            }
+                            if (forAllLawyers && priceController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء إدخال سعر الاستشارة', textAlign: TextAlign.center)),
+                              );
+                              return;
+                            }
+                            if (forSpecificLawyer && (selectedLawyerId == null || selectedLawyerId!.isEmpty)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('الرجاء اختيار اسم المحامي', textAlign: TextAlign.center)),
+                              );
+                              return;
+                            }
+
+
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user == null || user.isAnonymous) return;
 
                             await FirebaseFirestore.instance.collection('Consultations').add({
                               'type': selectedCategory ?? '',
                               'description': descriptionController.text.trim(),
                               'price': forAllLawyers ? priceController.text.trim() : null,
-                              'selected_lawyer': forSpecificLawyer ? selectedLawyer ?? '' : null,
+                              'selected_lawyer_name': forSpecificLawyer ? selectedLawyerDisplay ?? '' : null,
+                              'selected_lawyer_id': forSpecificLawyer ? selectedLawyerId ?? '' : null,
                               'user_uid': user.uid,
                               'status': 'pending',
                               'created_time': FieldValue.serverTimestamp(),
                               'file_url': null,
                             });
 
-                            print(' تم حفظ الطلب بنجاح!!');
-
-
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.grey,
-                                content: const Text(
-                                  'تم إرسال الطلب بنجاح !!',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,   // ← (اختياري) خط عريض
-                                  ),
+                              const SnackBar(
+                                content: Text(
+                                  'تم إرسال الطلب بنجاح',
+                                  style: TextStyle(color: Colors.white),
                                   textAlign: TextAlign.center,
                                 ),
+                                duration: Duration(milliseconds: 1500),
+                                backgroundColor: Color(0xFF062531),
                               ),
                             );
+
+                            await Future.delayed(const Duration(milliseconds: 1500));
+                            Navigator.pop(context);
                           }
                               : null,
                           child: const Text('إرسال الطلب'),
