@@ -69,7 +69,6 @@ class _LogOutPageState extends State<LogOutPage> {
       if (doc.exists) {
         try {
           await FirebaseFirestore.instance.collection(collection).doc(uid).update({
-            'username': name,
             'display_name': name,
             'isDarkMode': isDarkMode,
             'notifications': notificationsEnabled,
@@ -85,7 +84,7 @@ class _LogOutPageState extends State<LogOutPage> {
           }
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('❌ حدث خطأ: ${e.toString()}')),
+            SnackBar(content: Text(' حدث خطأ: ${e.toString()}')),
           );
         }
       }
@@ -96,6 +95,18 @@ class _LogOutPageState extends State<LogOutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF2F5F7),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF9D7D6C),
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 27.0, left: 15.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -106,6 +117,11 @@ class _LogOutPageState extends State<LogOutPage> {
               child: const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.person,
+                  size: 50,
+                  color: Colors.black54,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -173,7 +189,10 @@ class _LogOutPageState extends State<LogOutPage> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               ),
-              child: const Text('حفظ'),
+              child: const Text(
+                'حفظ',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
 
             const SizedBox(height: 12),
@@ -192,7 +211,10 @@ class _LogOutPageState extends State<LogOutPage> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               ),
-              child: const Text('تسجيل خروج'),
+              child: const Text(
+                'تسجيل خروج',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
