@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'LawyerProfilePage.dart';
+import 'lawyer_profile.dart';
 
 class FindLawyerHomePage extends StatefulWidget {
   const FindLawyerHomePage({super.key});
@@ -126,10 +126,18 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
 
                     final lawyers = snapshot.data!.docs.where((doc) {
                       final data = doc.data() as Map<String, dynamic>;
-                      final name = (data['display_name'] ?? data['username'] ?? '').toString().trim().toLowerCase();
 
-                      return name.isNotEmpty &&
+                      final name = (data['display_name'] ?? '').toString().trim().toLowerCase();
+                      final state = data['state']?.toString().toLowerCase();
+
+                      final nameMatch = name.isNotEmpty &&
                           (searchName.isEmpty || name.contains(searchName.toLowerCase()));
+
+                      if (selectedFilter == 'availability') {
+                        return nameMatch && state == 'available';
+                      } else {
+                        return nameMatch;
+                      }
                     }).toList();
 
                     return GridView.builder(
