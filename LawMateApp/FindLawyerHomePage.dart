@@ -34,7 +34,8 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                   final price = data['price']?.toString() ?? '';
 
                   Navigator.pop(context, {
-                    'name': '$name $price ريال',
+                    'name': name,
+                    'price': price,
                     'id': doc.id,
                   });
                 } else {
