@@ -60,12 +60,12 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
             .update({'file_url': downloadUrl});
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(' تم رفع الملف بنجاح')),
+          const SnackBar(content: Text('✅ تم رفع الملف بنجاح')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' فشل في رفع الملف: $e')),
+        SnackBar(content: Text('❌ فشل في رفع الملف: $e')),
       );
     }
   }
@@ -112,6 +112,13 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                     padding: const EdgeInsets.fromLTRB(16, 32, 16, 64),
                     child: Column(
                       children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
                         const Center(
                           child: Text(
                             'فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ',
@@ -214,7 +221,7 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                                         )
                                       else if (status == 'completed')
                                           const Text(
-                                            " تم إنجاز الاستشارة بنجاح",
+                                            "🎉 تم إنجاز الاستشارة بنجاح",
                                             style: TextStyle(color: Colors.white),
                                           ),
                                   ]
@@ -250,7 +257,7 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                 ],
               );
             } catch (e) {
-              return const Center(child: Text(' حدث خطأ أثناء معالجة البيانات'));
+              return const Center(child: Text('❌ حدث خطأ أثناء معالجة البيانات'));
             }
           },
         ),
