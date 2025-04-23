@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'UserInfoInCard.dart';
+import 'LawyerProfilePage.dart';
 
 class ConsultationsPage extends StatefulWidget {
   const ConsultationsPage({super.key});
@@ -45,7 +46,21 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.person, color: Colors.white),
+                        IconButton(
+                          icon: const Icon(Icons.person, color: Colors.white),
+                          onPressed: () {
+                            final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                            if (currentUserId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LawyerProfile(lawyerId: currentUserId),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+
                         const Text(
                           'الاستشارات',
                           style: TextStyle(
@@ -227,6 +242,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
       });
     } else if (status == 'rejected' && currentUser != null) {
       await FirebaseFirestore.instance.collection('Consultations').doc(docId).update({
+        'status': 'rejected',
         'rejected_by': FieldValue.arrayUnion([currentUser.uid])
       });
     }
