@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
 import 'waitingApproved.dart';
 
@@ -74,6 +75,7 @@ class _LawyerSignupState extends State<LawyerSignup> {
         'lawlicense': _licenseController.text.trim(),
         'license_file_url': _uploadedFileUrl ?? '',
         'photo_url': _uploadedImageUrl ?? '',
+        'state': 'available',
         'created_time': Timestamp.now(),
         'is_approved': false,
         'userType': 'legalProfessional',
@@ -108,7 +110,7 @@ class _LawyerSignupState extends State<LawyerSignup> {
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/userlawyer.jpg'),
+                image: AssetImage('assets/images/Beige_and_Brown_Aesthetic_Background_Instagram_Story2.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -125,13 +127,29 @@ class _LawyerSignupState extends State<LawyerSignup> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    backgroundImage: _uploadedImageUrl != null
-                        ? NetworkImage(_uploadedImageUrl!)
-                        : const AssetImage('assets/images/hk.jpeg') as ImageProvider,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          offset: const Offset(0, 4),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SvgPicture.asset(
+                        'assets/icons/lawyer-svgrepo-com.svg',
+                        width: 40,
+                        height: 40,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
