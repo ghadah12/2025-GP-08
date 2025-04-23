@@ -295,6 +295,7 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                             setState(() {
                               selectedLawyerDisplay = result['name'];
                               selectedLawyerId = result['id'];
+                              final lawyerPrice = result['price'];
                             });
                           }
                         },
@@ -303,44 +304,19 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                         child: Container(
                           width: double.infinity,
                           margin: const EdgeInsets.only(top: 10, right: 38, left: 15),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
                           decoration: BoxDecoration(
                             color: const Color(0xFF062531),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            textDirection: TextDirection.rtl,
-                            children: const [
-                              Text(
-                                'اختر محامي',
-                                style: TextStyle(color: Colors.white),
-                                textAlign: TextAlign.right,
-                              ),
-
-                            ],
-                          ),
-
-                        ),
-                      ),
-                      if (selectedLawyerDisplay != null) ...[
-                        const SizedBox(height: 10),
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(right: 38, left: 15),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF052532),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
                           child: Text(
-                            selectedLawyerDisplay!,
+                            selectedLawyerDisplay ?? 'اختر محامي',
                             style: const TextStyle(color: Colors.white),
-                            textAlign: TextAlign.center,
+                            textAlign: selectedLawyerDisplay != null ? TextAlign.center : TextAlign.right,
                           ),
                         ),
-                      ],
 
+                      ),
 
                     ],
                     Row(
