@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LawyerProfile extends StatefulWidget {
-  final String lawyerId; 
+  final String lawyerId;
 
   const LawyerProfile({super.key, required this.lawyerId});
 
@@ -15,6 +15,7 @@ class LawyerProfile extends StatefulWidget {
 class _LawyerProfileState extends State<LawyerProfile> {
   Map<String, dynamic>? lawyerData;
   String userType = '';
+  String currentState = '';
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -33,12 +34,12 @@ class _LawyerProfileState extends State<LawyerProfile> {
     if (doc.exists) {
       setState(() {
         lawyerData = doc.data();
+        currentState = lawyerData?['state'] ?? '';
       });
     }
   }
 
   Future<void> fetchCurrentUserType() async {
-    // نحاول نجيب المستخدم من مجموعة Individual
     final docUser = await FirebaseFirestore.instance
         .collection('Individual')
         .doc(currentUserId)
@@ -49,7 +50,6 @@ class _LawyerProfileState extends State<LawyerProfile> {
         userType = docUser.data()?['userType'] ?? '';
       });
     } else {
-      // نحاول نجيب المستخدم من مجموعة LegalProfessional
       final docLawyer = await FirebaseFirestore.instance
           .collection('LegalProfessional')
           .doc(currentUserId)
@@ -113,21 +113,18 @@ class _LawyerProfileState extends State<LawyerProfile> {
                 ),
               ),
             ),
-
             const SizedBox(height: 10),
             Text(
               lawyerData?['display_name'] ?? 'اسم المحامي',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
-
             Container(
               width: 250,
               height: 2,
               color: const Color(0xFF917268),
               margin: const EdgeInsets.symmetric(vertical: 10),
             ),
-
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
               child: Column(
@@ -146,10 +143,7 @@ class _LawyerProfileState extends State<LawyerProfile> {
                 ],
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // 👇 هذا الشرط هو اللي يتحكم في عرض الأزرار
             if (userType == 'legalProfessional')
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -166,55 +160,69 @@ class _LawyerProfileState extends State<LawyerProfile> {
   }
 
   Widget _infoRow(String iconPath, String label) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 18),
-            textAlign: TextAlign.right,
-          ),
-        ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-            color: Color(0xFF062531),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                offset: Offset(0, 4),
-                blurRadius: 4,
-              )
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SvgPicture.asset(
-              iconPath,
-              color: Colors.white,
-              width: 24,
-              height: 24,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFF062531),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(0, 4),
+                  blurRadius: 4,
+                )
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SvgPicture.asset(
+                iconPath,
+                color: Colors.white,
+                width: 24,
+                height: 24,
+              ),
             ),
           ),
-        )
-      ],
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 18),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _statusButton(BuildContext context, String label, Color color) {
+    bool isCurrent = (currentState == 'available' && label == 'متاح') ||
+        (currentState == 'busy' && label == 'مشغول');
+
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم الضغط على "$label"')),
-        );
+      onTap: isCurrent
+          ? null
+          : () async {
+        String newState = label == 'متاح' ? 'available' : 'busy';
+        await FirebaseFirestore.instance
+            .collection('LegalProfessional')
+            .doc(widget.lawyerId)
+            .update({'state': newState});
+        setState(() {
+          currentState = newState;
+        });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
         decoration: BoxDecoration(
-          color: color,
+          color: isCurrent ? const Color(0xFF917268).withOpacity(0.6) : const Color(0xFF917268),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
