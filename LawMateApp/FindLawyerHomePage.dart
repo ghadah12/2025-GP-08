@@ -30,7 +30,7 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
 
                 if (doc.exists) {
                   final data = doc.data()!;
-                  final name = data['display_name'] ?? data['username'] ?? '';
+                  final name = data['display_name'] ?? '';
                   final price = data['price']?.toString() ?? '';
 
                   Navigator.pop(context, {
@@ -185,7 +185,11 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                                       value: selectedLawyerId == lawyerId,
                                       onChanged: (_) {
                                         setState(() {
-                                          selectedLawyerId = lawyerId;
+                                          if (selectedLawyerId == lawyerId) {
+                                            selectedLawyerId = null;
+                                          } else {
+                                            selectedLawyerId = lawyerId;
+                                          }
                                         });
                                       },
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -198,7 +202,7 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                lawyer['display_name'] ?? lawyer['username'] ?? '',
+                                lawyer['display_name'] ?? '',
                                 style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 6),
