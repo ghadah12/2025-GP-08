@@ -60,12 +60,12 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
             .update({'file_url': downloadUrl});
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ تم رفع الملف بنجاح')),
+          const SnackBar(content: Text(' تم رفع الملف بنجاح')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ فشل في رفع الملف: $e')),
+        SnackBar(content: Text(' فشل في رفع الملف: $e')),
       );
     }
   }
@@ -214,7 +214,7 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                                         )
                                       else if (status == 'completed')
                                           const Text(
-                                            "🎉 تم إنجاز الاستشارة بنجاح",
+                                            " تم إنجاز الاستشارة بنجاح",
                                             style: TextStyle(color: Colors.white),
                                           ),
                                   ]
@@ -250,7 +250,7 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                 ],
               );
             } catch (e) {
-              return const Center(child: Text('❌ حدث خطأ أثناء معالجة البيانات'));
+              return const Center(child: Text(' حدث خطأ أثناء معالجة البيانات'));
             }
           },
         ),
