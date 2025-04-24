@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'lawyer_profile.dart';
+import 'LawyerProfilePage.dart';
 
 class FindLawyerHomePage extends StatefulWidget {
   const FindLawyerHomePage({super.key});
@@ -66,7 +66,7 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                 items: const [
                   DropdownMenuItem(
                     value: 'name',
-                    child: Text('حسب الاسم'),
+                    child: Text('الكل'),
                   ),
                   DropdownMenuItem(
                     value: 'availability',
@@ -152,12 +152,16 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                       itemBuilder: (context, index) {
                         final lawyerDoc = lawyers[index];
                         final lawyer = lawyerDoc.data() as Map<String, dynamic>;
+                        final state = lawyer['state']?.toString().toLowerCase() ?? '';
+                        final isAvailable = state == 'available';
                         final lawyerId = lawyerDoc.id;
 
                         return Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF062531),
+                            color: isAvailable
+                                ? const Color(0xFF062531)
+                                : const Color(0xFF204556), // درجة أفتح يدويًا من نفس العائلة
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Column(
@@ -184,7 +188,8 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                                     right: 0,
                                     child: Checkbox(
                                       value: selectedLawyerId == lawyerId,
-                                      onChanged: (_) {
+                                      onChanged: isAvailable
+                                          ? (_) {
                                         setState(() {
                                           if (selectedLawyerId == lawyerId) {
                                             selectedLawyerId = null;
@@ -192,12 +197,17 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                                             selectedLawyerId = lawyerId;
                                           }
                                         });
-                                      },
+                                      }
+                                          : null,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                                      side: const BorderSide(color: Colors.white),
+                                      side: BorderSide(
+                                        color: isAvailable ? Colors.white : Colors.grey[300]!,
+                                      ),
                                       checkColor: Colors.white,
-                                      activeColor: Colors.teal,
+                                      activeColor: isAvailable ? Colors.teal : Colors.grey[300],
                                     ),
+
+
                                   ),
                                 ],
                               ),
@@ -206,6 +216,18 @@ class _FindLawyerHomePageState extends State<FindLawyerHomePage> {
                                 lawyer['display_name'] ?? '',
                                 style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                               ),
+                              if (!isAvailable)
+                                const SizedBox(height: 4),
+                              if (!isAvailable)
+                                const Text(
+                                  'غير متاح حالياً',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+
                               const SizedBox(height: 6),
                               Text(
                                 '${lawyer['price'] ?? '---'} ريال',
