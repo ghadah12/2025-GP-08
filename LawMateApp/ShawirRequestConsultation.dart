@@ -504,6 +504,7 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                               'status': 'pending',
                               'created_time': FieldValue.serverTimestamp(),
                               'file_url': null,
+                              'selectedCommunicationMethod': selectedCommunicationMethod ?? '',
                             });
 
                             ScaffoldMessenger.of(context).showSnackBar(
