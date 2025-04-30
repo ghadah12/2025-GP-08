@@ -139,7 +139,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                 !rejectedBy.contains(currentUid)) ||
                                 (status == 'accepted' && selectedLawyer == currentUid) ||
                                 (status == 'completed' && selectedLawyer == currentUid) ||
-                                (status == 'pending' && rejectedBy.contains(currentUid));
+                                (status == 'rejected' && rejectedBy.contains(currentUid));
                           }
 
                           if (selectedStatus == 'completed') {
