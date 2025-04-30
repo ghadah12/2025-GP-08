@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'UserInfoInCard.dart';
-import 'LawyerProfilePage.dart';
+import 'lawyer_profile.dart';
 
 class ConsultationsPage extends StatefulWidget {
   const ConsultationsPage({super.key});
@@ -147,7 +147,7 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           }
 
                           if (selectedStatus == 'rejected') {
-                            return status == 'pending' && rejectedBy.contains(currentUid);
+                            return status == 'rejected' && rejectedBy.contains(currentUid);
                           }
 
                           if (selectedStatus == 'accepted') {
