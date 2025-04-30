@@ -266,6 +266,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
         alignment: Alignment.topRight,
         child: Text(
           '  $label : $value',
+          textDirection: TextDirection.rtl,
           textAlign: TextAlign.right,
           style: const TextStyle(
             color: Colors.white,
