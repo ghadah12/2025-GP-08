@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
       String fullName = lawyerDoc.data()?['display_name'] ?? '';
       return fullName.split(' ').first;
     }
-    
+
     return '';
   }
 
@@ -66,11 +66,17 @@ class HomePage extends StatelessWidget {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return 0;
 
+    final isLawyer = await isLawyerUser();
+
     final querySnapshot = await FirebaseFirestore.instance
         .collection('Consultations')
-        .where('user_uid', isEqualTo: currentUser.uid)
+        .where(
+      isLawyer ? 'selected_lawyer_uid' : 'user_uid',
+      isEqualTo: currentUser.uid,
+    )
         .where('status', isEqualTo: 'completed')
         .get();
+
 
     return querySnapshot.docs.length;
   }
