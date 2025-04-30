@@ -24,6 +24,7 @@ class UserInfoInCard extends StatefulWidget {
 class _UserInfoInCardState extends State<UserInfoInCard> {
   bool _isButtonDisabled = false;
   String phoneNumber = '';
+  String selectedCommunicationMethod = '';
   String selectedPrice = '';
   String? selectedLawyerUid;
 
@@ -44,6 +45,9 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
         final userUid = consultationDoc['user_uid'];
         final data = consultationDoc.data()!;
         final price = data.containsKey('price') ? data['price'].toString() : '';
+        final communicationMethod = data.containsKey('selectedCommunicationMethod')
+            ? data['selectedCommunicationMethod'].toString()
+            : '';
         final lawyerUid = data.containsKey('selected_lawyer_uid') ? data['selected_lawyer_uid'] : null;
 
         final userDoc = await FirebaseFirestore.instance
@@ -58,6 +62,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
         setState(() {
           selectedPrice = price;
           phoneNumber = phone;
+          selectedCommunicationMethod = communicationMethod;
           selectedLawyerUid = lawyerUid;
         });
       }
@@ -96,7 +101,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
           .update({'status': 'completed'});
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ تم إنهاء الاستشارة')),
+        const SnackBar(content: Text(' تم إنهاء الاستشارة')),
       );
 
       setState(() {
@@ -175,8 +180,9 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
               top: 380,
               left: 20,
               right: 20,
-              child: _infoBox('تصنيف الإستشارة', widget.type),
+              child: _infoBox('موضوع الإستشارة', widget.type),
             ),
+
             if (phoneNumber.isNotEmpty)
               Positioned(
                 top: 450,
@@ -184,15 +190,25 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
                 right: 20,
                 child: _infoBox('رقم الجوال', phoneNumber),
               ),
-            if ((selectedLawyerUid == null || selectedLawyerUid!.isEmpty) && selectedPrice.isNotEmpty)
+
+            if (selectedCommunicationMethod.isNotEmpty)
               Positioned(
                 top: 520,
                 left: 20,
                 right: 20,
+                child: _infoBox('طريقة التواصل المفضلة', selectedCommunicationMethod),
+              ),
+
+            if ((selectedLawyerUid == null || selectedLawyerUid!.isEmpty) && selectedPrice.isNotEmpty)
+              Positioned(
+                top: 590,
+                left: 20,
+                right: 20,
                 child: _infoBox('السعر المقترح', '$selectedPrice ريال'),
               ),
+
             Positioned(
-              top: selectedPrice.isNotEmpty && (selectedLawyerUid == null || selectedLawyerUid!.isEmpty) ? 590 : 520,
+              top: selectedPrice.isNotEmpty && (selectedLawyerUid == null || selectedLawyerUid!.isEmpty) ? 660 : 590,
               left: 20,
               right: 20,
               child: _infoBox('الوصف', widget.description, height: 118),
