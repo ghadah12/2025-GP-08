@@ -412,28 +412,36 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const Text(
-                          'أوافق على مشاركة الملفات والمعلومات مع المحامي دون أدنى مسؤولية',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(2, 2),
-                                blurRadius: 4,
-                                color: Colors.black45,
-                              ),
-                            ],
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: Text(
+                            'أوافق على مشاركة الملفات والمعلومات مع المحامي دون أدنى مسؤولية',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(2, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 3),
-                        Checkbox(
-                          value: isAgreed,
-                          onChanged: (value) => setState(() => isAgreed = value ?? false),
+
+                        Padding(
+                          padding: const EdgeInsets.only(right:12),
+                          child: Checkbox(
+                            value: isAgreed,
+                            onChanged: (value) => setState(() => isAgreed = value ?? false),
+                          ),
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
