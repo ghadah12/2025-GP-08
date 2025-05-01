@@ -10,7 +10,7 @@ class SignUpUserLawyer extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 🔹 الخلفية
+          
           Positioned.fill(
             child: Image.asset(
               'assets/images/Pastel Colors Organic Aesthetic Minimalist Modern Motivational Q.jpg',
@@ -18,7 +18,7 @@ class SignUpUserLawyer extends StatelessWidget {
             ),
           ),
 
-          // 🔹 النص القرآني
+          
           Align(
             alignment: const Alignment(0.0, -0.37),
             child: Padding(
@@ -36,7 +36,7 @@ class SignUpUserLawyer extends StatelessWidget {
             ),
           ),
 
-          // 🔹 الأزرار
+          
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
