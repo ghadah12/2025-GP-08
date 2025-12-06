@@ -165,14 +165,12 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           return false;
                         }).toList();
 
-                        // 👇👇👇 الإضافة الجديدة هنا: كود الترتيب 👇👇👇
-                        // يرتب القائمة بحيث يكون الوقت الأحدث (b) قبل الوقت الأقدم (a)
                         filtered.sort((a, b) {
                           Timestamp timeA = a['created_time'];
                           Timestamp timeB = b['created_time'];
-                          return timeB.compareTo(timeA); // تنازلي (الأحدث في الأعلى)
+                          return timeB.compareTo(timeA); 
                         });
-                        // 👆👆👆 نهاية الإضافة 👆👆👆
+                        
 
                         return ListView.separated(
                           padding: const EdgeInsets.only(bottom: 30),
