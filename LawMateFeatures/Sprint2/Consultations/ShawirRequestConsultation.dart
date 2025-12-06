@@ -563,13 +563,13 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                               'target_lawyers': forAllLawyers
                                   ? targetLawyerUIDs
                                   : forSpecificLawyer
-                                  ? [selectedLawyerId] 
+                                  ? [selectedLawyerId]
                                   : null,
                               'type': selectedCategory ?? '',
                               'description': descriptionController.text.trim(),
                               'price': forAllLawyers ? selectedPriceRange ?? '' : priceController.text.trim(),
                               'selected_lawyer_name': forSpecificLawyer ? selectedLawyerDisplay ?? '' : null,
-                              'selected_lawyer_uid': null, 
+                              'selected_lawyer_uid': null,
                               'user_uid': user.uid,
                               'status': 'pending',
                               'created_time': FieldValue.serverTimestamp(),
@@ -577,6 +577,28 @@ class _ShawirRequestConsultationState extends State<ShawirRequestConsultation> {
                               'selectedCommunicationMethod': selectedCommunicationMethod ?? '',
                             });
 
+
+                            if (forSpecificLawyer && selectedLawyerId != null) {
+                              await FirebaseFirestore.instance.collection('notifications').add({
+                                'recipientId': selectedLawyerId,
+                                'title': "طلب استشارة جديد! ",
+                                'body': "وردك طلب استشارة جديد من نوع ${selectedCategory ?? ''} بانتظار موافقتك.",
+                                'createdAt': FieldValue.serverTimestamp(),
+                                'isRead': false,
+                              });
+                            }
+
+                            else if (forAllLawyers && targetLawyerUIDs != null) {
+                              for (String lawyerId in targetLawyerUIDs) {
+                                await FirebaseFirestore.instance.collection('notifications').add({
+                                  'recipientId': lawyerId,
+                                  'title': "طلب استشارة جديد!",
+                                  'body': "ورد طلب استشارة جديد من نوع ${selectedCategory ?? ''} بانتظار موافقتك.",
+                                  'createdAt': FieldValue.serverTimestamp(),
+                                  'isRead': false,
+                                });
+                              }
+                            }
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
