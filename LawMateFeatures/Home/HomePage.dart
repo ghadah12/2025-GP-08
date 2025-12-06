@@ -8,6 +8,8 @@ import 'logOut.dart';
 import 'LawyerSchedulePage.dart';
 import 'LegalChatBot.dart';
 import 'my_ratings_page.dart';
+import 'NotificationsPage.dart';
+import 'Legal Guide.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -125,21 +127,78 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 Align(
                   alignment: Alignment.topLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 40, left: 30),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: SvgPicture.asset(
-                        'assets/icons/notification-13-svgrepo-com.svg',
-                        width: 45,
-                        height: 45,
-                        fit: BoxFit.contain,
-                      ),
+                    child: StreamBuilder<QuerySnapshot>(
+
+                      stream: FirebaseFirestore.instance
+                          .collection('notifications')
+                          .where('recipientId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                          .where('isRead', isEqualTo: false)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        int unreadCount = 0;
+                        if (snapshot.hasData) {
+                          unreadCount = snapshot.data!.docs.length;
+                        }
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsPage(),
+                              ),
+                            );
+                          },
+
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/notification-13-svgrepo-com.svg',
+                                width: 45,
+                                height: 45,
+                                fit: BoxFit.contain,
+                              ),
+
+                              if (unreadCount > 0)
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF910E00),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 22,
+                                      minHeight: 22,
+                                    ),
+                                    child: Text(
+                                      '$unreadCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
+                // نهاية الكود الجديد
+
                 Positioned(
                   top: size.height * 0,
                   right: size.width * 0.02,
@@ -251,6 +310,11 @@ class HomePage extends StatelessWidget {
                         }
                         else if (titles[index] == 'التقييمات') {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const MyRatingsPage(isLawyerView: true),));
+                        }else if (titles[index] == 'الدليل قانوني') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LegalGuidePage()),
+                          );
                         }
                       },
                       child: buildCard(
