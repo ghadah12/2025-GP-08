@@ -384,6 +384,14 @@ class _ConsultationStatusPageState extends State<ConsultationStatusPage> {
                           }
                         }, SetOptions(merge: true));
 
+                        await FirebaseFirestore.instance.collection('notifications').add({
+                          'recipientId': lawyerId,
+                          'title': "تم تحديد موعد جديد! ",
+                          'body': "قام العميل ${userName ?? 'مستخدم'} بحجز موعد بتاريخ $dateStr الساعة $selectedTime.",
+                          'createdAt': FieldValue.serverTimestamp(),
+                          'isRead': false,
+                        });
+
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (context.mounted) {
                           setState(() {});
