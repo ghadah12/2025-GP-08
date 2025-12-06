@@ -219,8 +219,8 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                                       ),
                                     );
                                   },
-                                  onAccept: () => updateConsultationStatus(docId, 'accepted'),
-                                  onReject: () => updateConsultationStatus(docId, 'rejected'),
+                                  onAccept: () => updateConsultationStatus(docId, 'accepted', userUid, type),
+                                  onReject: () => updateConsultationStatus(docId, 'rejected', userUid, type),
                                   type: type,
                                   createdAt: formattedDate,
                                 );
@@ -240,27 +240,67 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
     );
   }
 
-  void updateConsultationStatus(String docId, String status) async {
+
+  Future<void> sendNotification({
+    required String recipientId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'recipientId': recipientId,
+        'title': title,
+        'body': body,
+        'createdAt': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
+    } catch (e) {
+      print("Error sending notification: $e");
+    }
+  }
+
+
+  void updateConsultationStatus(String docId, String status, String userUid, String consultationType) async {
     final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
 
-    if (status == 'accepted' && currentUser != null) {
-      final lawyerSnap = await FirebaseFirestore.instance
-          .collection('LegalProfessional')
-          .doc(currentUser.uid)
-          .get();
-      final lawyerName = lawyerSnap.data()?['display_name'] ?? 'محامٍ';
 
+    final lawyerSnap = await FirebaseFirestore.instance
+        .collection('LegalProfessional')
+        .doc(currentUser.uid)
+        .get();
+    final lawyerName = lawyerSnap.data()?['display_name'] ?? 'محامٍ';
+
+    final String unifiedTitle = "تحديث حالة طلب استشارة: $consultationType";
+
+
+    if (status == 'accepted') {
       await FirebaseFirestore.instance.collection('Consultations').doc(docId).update({
-        'status': status,
+        'status': 'accepted',
         'selected_lawyer_uid': currentUser.uid,
         'selected_lawyer_name': lawyerName,
       });
 
-    } else if (status == 'rejected' && currentUser != null) {
+
+      await sendNotification(
+          recipientId: userUid,
+          title: unifiedTitle,
+          body: "وافق المحامي $lawyerName على طلب الاستشارة. "
+      );
+
+
+    } else if (status == 'rejected') {
       await FirebaseFirestore.instance.collection('Consultations').doc(docId).update({
         'status': 'rejected',
         'rejected_by': FieldValue.arrayUnion([currentUser.uid])
       });
+
+
+      await sendNotification(
+          recipientId: userUid,
+          title: unifiedTitle,
+          body: " اعتذر المحامي $lawyerName عن قبول طلبك في الوقت الحالي. "
+      );
     }
   }
 }
