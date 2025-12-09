@@ -10,13 +10,13 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  
+
   bool isLoggedIn = false;
   String adminName = "";
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -28,7 +28,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.dispose();
   }
 
-  
+
   Future<void> _checkAdminLogin() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -64,7 +64,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  
+
   Future<void> approveLawyer(String lawyerId, String lawyerName) async {
     try {
       await FirebaseFirestore.instance.collection('LegalProfessional').doc(lawyerId).update({
@@ -72,8 +72,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
       await FirebaseFirestore.instance.collection('notifications').add({
         'recipientId': lawyerId,
-        'title': "تم توثيق حسابك!🎉",
-        'body': "تهانينا! تمت الموافقة على حسابك كمحامي.",
+        'title': "!أهلاً بك في LawMate",
+        'body': "تهانينا! تمت الموافقة على حسابك كمحامي, يمكنك الآن استقبال الاستشارات.",
         'createdAt': FieldValue.serverTimestamp(),
         'isRead': false,
       });
@@ -82,10 +82,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  
+
   Future<void> rejectLawyer(String lawyerId, String lawyerName) async {
     try {
-      
+
       await FirebaseFirestore.instance.collection('LegalProfessional').doc(lawyerId).delete();
 
     } catch (e) {
@@ -102,7 +102,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  
+
   Widget _buildLoginView(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -170,7 +170,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  
+
   Widget _buildDashboardView() {
     return Scaffold(
       appBar: AppBar(
@@ -226,12 +226,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          
+
                           builder: (context) => LawyerDetailsAdminView(lawyerData: data),
                         ),
                       );
                     },
-                    
+
 
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     leading: CircleAvatar(
@@ -241,38 +241,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                     title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     subtitle: FittedBox(
-                      fit: BoxFit.scaleDown, 
-                      alignment: Alignment.centerLeft, 
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
                       child: Text( email, style: const TextStyle(fontSize: 14, color: Colors.black54,),),),
 
-                    
+
                     trailing: Row(
-                      mainAxisSize: MainAxisSize.min, 
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        
+
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), 
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            minimumSize: const Size(60, 36), 
+                            minimumSize: const Size(60, 36),
                           ),
                           onPressed: () {
                             approveLawyer(doc.id, name);
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("تم القبول بنجاح")));
                           },
-                          child: const Text("قبول", style: TextStyle(fontSize: 12)), 
+                          child: const Text("قبول", style: TextStyle(fontSize: 12)),
                         ),
 
-                        const SizedBox(width: 8), 
+                        const SizedBox(width: 8),
 
-                        
+
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent, 
+                            backgroundColor: Colors.redAccent,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), 
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             minimumSize: const Size(60, 36),
                           ),
@@ -322,7 +322,7 @@ class LawyerDetailsAdminView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             
+
               Container(
                 width: 107, height: 107,
                 decoration: BoxDecoration(
@@ -335,21 +335,21 @@ class LawyerDetailsAdminView extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-             
+
               Text(
                 lawyerData['display_name'] ?? 'اسم المحامي',
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
 
-             
+
               Container(
                 width: 250, height: 2,
                 color: const Color(0xFF917268),
                 margin: const EdgeInsets.symmetric(vertical: 10),
               ),
 
-              
+
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
                 child: Column(
@@ -371,7 +371,7 @@ class LawyerDetailsAdminView extends StatelessWidget {
     );
   }
 
- 
+
   Widget _infoRow(String iconPath, String label) {
     return Directionality(
       textDirection: TextDirection.rtl,
