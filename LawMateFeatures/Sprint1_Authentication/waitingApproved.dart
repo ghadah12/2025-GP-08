@@ -1,7 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+import 'NotificationService.dart';
+import 'HomePage.dart';
 
-class WaitingApproved extends StatelessWidget {
+
+class WaitingApproved extends StatefulWidget {
   const WaitingApproved({super.key});
+
+  @override
+  State<WaitingApproved> createState() => _WaitingApprovedState();
+}
+
+class _WaitingApprovedState extends State<WaitingApproved> {
+  StreamSubscription<DocumentSnapshot>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _startListeningForApproval();
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+
+  void _startListeningForApproval() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    _subscription = FirebaseFirestore.instance
+        .collection('LegalProfessional')
+        .doc(user.uid)
+        .snapshots()
+        .listen((snapshot) {
+
+
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null && data['is_approved'] == true) {
+
+          NotificationService.showNotification(
+            title: "!أهلاً بك في LawMate",
+            body: "تهانينا! تمت الموافقة على حسابك كمحامي، يمكنك الآن استقبال الاستشارات.",
+          );
+
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+                  (route) => false,
+            );
+          }
+        }
+      }
+
+      else {
+
+        NotificationService.showNotification(
+          title: " طلب الانضمام كمحام",
+          body: "نعتذر، لم يتم قبولك لعدم استيفاء شروط التسجيل المطلوبة.",
+        );
+
+
+        if (mounted) {
+          FirebaseAuth.instance.signOut();
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -25,15 +98,16 @@ class WaitingApproved extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, size: 24),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/signUpUserLawyer');
+
+                  Navigator.of(context).pop();
                 },
               ),
             ),
             const Spacer(flex: 2),
-            Center(
+            const Center(
               child: Text(
                 '! تم أستلام طلبك',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter Tight',
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -41,12 +115,12 @@ class WaitingApproved extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 50),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'شكرًا لتسجيلك! سيتم مراجعة طلبك خلال 72 ساعة. في حال الموافقة، ستتمكن من تسجيل الدخول. نقدر صبرك وتفهمك.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter Tight',
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
