@@ -90,13 +90,13 @@ class _LegalChatBotState extends State<LegalChatBot> {
 
 
 
-  static const Color kBg = Color(0xFFEFECE8);    
-  static const Color kNavy = Color(0xFF062531);   
-  static const Color kTyping = Color(0xFF005A4F); 
-  static const Color kDots = Color(0xFFD9D9D9);   
+  static const Color kBg = Color(0xFFEFECE8);
+  static const Color kNavy = Color(0xFF062531);
+  static const Color kTyping = Color(0xFF005A4F);
+  static const Color kDots = Color(0xFFD9D9D9);
 
 
-  static const String kApiBase = 'https://83dbdf18c356.ngrok-free.app';
+  static const String kApiBase = 'https://a49b2796f134.ngrok-free.app';
   static const String kChatPath = '/ask';
 
 
@@ -104,7 +104,7 @@ class _LegalChatBotState extends State<LegalChatBot> {
     try {
 
       if (message.trim().split(' ').length < 2) {
-        return '❌ الرجاء كتابة سؤالك القانوني بشكل أوضح.';
+        return ' الرجاء كتابة سؤالك القانوني بشكل أوضح.';
       }
 
       final uri = Uri.parse('$kApiBase$kChatPath');
@@ -137,7 +137,7 @@ class _LegalChatBotState extends State<LegalChatBot> {
           }
         }
 
-        
+
         return data.toString();
       } else {
         return '❌ خطأ من الخادم (${resp.statusCode}).';
@@ -161,7 +161,7 @@ class _LegalChatBotState extends State<LegalChatBot> {
     if (pendingQuestions.isNotEmpty && selectedDocumentType != null) {
       if (!_isValidAnswer(pendingQuestions[currentQuestionIndex], text)) {
         setState(() {
-          _messages.add(Message(text: '⚠️ الرجاء إدخال إجابة صحيحة لهذا السؤال.', role: Role.assistant));
+          _messages.add(Message(text: ' الرجاء إدخال إجابة صحيحة لهذا السؤال.', role: Role.assistant));
         });
         return;
       }
@@ -170,7 +170,7 @@ class _LegalChatBotState extends State<LegalChatBot> {
       currentQuestionIndex++;
 
       if (currentQuestionIndex < pendingQuestions.length) {
-       
+        // باقي أسئلة
         setState(() {
           _messages.add(Message(
             text: pendingQuestions[currentQuestionIndex],
@@ -180,7 +180,7 @@ class _LegalChatBotState extends State<LegalChatBot> {
         return;
       } else {
 
-        final summary = StringBuffer('📄 تم إدخال البيانات التالية لـ "$selectedDocumentType":\n\n');
+        final summary = StringBuffer(' تم إدخال البيانات التالية لـ "$selectedDocumentType":\n\n');
         for (int i = 0; i < userAnswers.length; i++) {
           summary.writeln('${i + 1}. ${pendingQuestions[i]}');
           summary.writeln('   → ${userAnswers[i]}');
@@ -243,15 +243,15 @@ class _LegalChatBotState extends State<LegalChatBot> {
       return RegExp(r'^\d{10}$').hasMatch(answer.trim());
     }
 
- 
+
     if (question.contains('تاريخ')  || question.contains('كم') || question.contains('مدة')) {
       return RegExp(r'^(\d{1,4}([/\-]\d{1,2}([/\-]\d{2,4})?)?|\d+\s?[أ-يa-zA-Z]+)$').hasMatch(answer);
     }
 
-  
+
     if (answer.trim().length < 2) return false;
 
-    return true; 
+    return true;
   }
 
 
@@ -439,7 +439,7 @@ $formattedConditions
           ),
 
 
-         
+
           Positioned(
             bottom: 20,
             left: 20,
@@ -622,8 +622,8 @@ $formattedConditions
     setState(() {
       _messages.add(Message(
         text: 'ما نوع المستند الذي ترغب في إنشائه؟\n\n'
-            '📄 عقد نفقة\n'
-            '👶 اتفاق حضانة\n'
+            ' عقد نفقة\n'
+            ' اتفاق حضانة\n'
             ' إشعار طلاق\n'
             ' اتفاق عدم التعرضر',
         role: Role.assistant,
