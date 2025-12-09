@@ -165,12 +165,13 @@ class _ConsultationsPageState extends State<ConsultationsPage> {
                           return false;
                         }).toList();
 
+
                         filtered.sort((a, b) {
                           Timestamp timeA = a['created_time'];
                           Timestamp timeB = b['created_time'];
-                          return timeB.compareTo(timeA); 
+                          return timeB.compareTo(timeA);
                         });
-                        
+
 
                         return ListView.separated(
                           padding: const EdgeInsets.only(bottom: 30),
