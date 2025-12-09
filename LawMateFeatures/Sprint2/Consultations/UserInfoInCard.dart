@@ -100,7 +100,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
           .doc(widget.docId)
           .update({'status': 'completed'});
 
-      
+
       try {
 
         final docSnapshot = await FirebaseFirestore.instance
@@ -108,7 +108,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
             .doc(widget.docId)
             .get();
 
-        final targetUserUid = docSnapshot['user_uid']; 
+        final targetUserUid = docSnapshot['user_uid'];
 
         await FirebaseFirestore.instance.collection('notifications').add({
           'recipientId': targetUserUid,
@@ -120,7 +120,7 @@ class _UserInfoInCardState extends State<UserInfoInCard> {
       } catch (e) {
         debugPrint("Error sending completion notification: $e");
       }
-      
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(' تم إنهاء الاستشارة')),
