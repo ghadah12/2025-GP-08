@@ -10,13 +10,51 @@ import 'LegalChatBot.dart';
 import 'my_ratings_page.dart';
 import 'NotificationsPage.dart';
 import 'Legal Guide.dart';
+import 'NotificationService.dart';
 
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   static const String routeName = '/homePage';
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    _listenForNotifications();
+  }
+
+  void _listenForNotifications() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('recipientId', isEqualTo: user.uid)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          final data = change.doc.data() as Map<String, dynamic>;
+
+
+          NotificationService.showNotification(
+            title: data['title'] ?? 'تنبيه جديد',
+            body: data['body'] ?? '',
+          );
+
+        }
+      }
+    });
+  }
   Future<bool> isIndividualUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return false;
@@ -197,7 +235,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // نهاية الكود الجديد
+
 
                 Positioned(
                   top: size.height * 0,
@@ -239,7 +277,7 @@ class HomePage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: Color(0xFF062531),
                           borderRadius: BorderRadius.circular(12),
@@ -274,14 +312,7 @@ class HomePage extends StatelessWidget {
                                 ],
                               ),
                               SizedBox(height: 4),
-                              Text(
-                                'لا توجد مواعيد بعد',
-                                style: TextStyle(
-                                  color: Color(0xFFEFECE8),
-                                  fontSize: 12,
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
+
                             ],
                           ),
                         ),
@@ -319,7 +350,7 @@ class HomePage extends StatelessWidget {
                       },
                       child: buildCard(
                         title: titles[index],
-                        subtitle: (!isLawyer && index == 0) ? 'قريباً' : null,
+                        subtitle: null,
                       ),
                     ),
                   );
