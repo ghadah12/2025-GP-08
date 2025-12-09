@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'UserSignIn.dart';
 import 'LawyerSign.dart';
+import 'AdminDashboard.dart';
 
 class SignUpUserLawyer extends StatelessWidget {
   const SignUpUserLawyer({super.key});
@@ -10,7 +11,7 @@ class SignUpUserLawyer extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          
+
           Positioned.fill(
             child: Image.asset(
               'assets/images/Pastel_Colors_Organic_Aesthetic_Minimalist_Modern_Motivational_Quote_Poster_(1).png',
@@ -18,7 +19,35 @@ class SignUpUserLawyer extends StatelessWidget {
             ),
           ),
 
-          
+          Positioned(
+            top: 50,
+            right: 20,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AdminDashboard()),
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF062531),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+
+              ),
+            ),
+          ),
+
           Align(
             alignment: const Alignment(0.0, -0.37),
             child: Padding(
@@ -36,7 +65,7 @@ class SignUpUserLawyer extends StatelessWidget {
             ),
           ),
 
-          
+
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -53,6 +82,7 @@ class SignUpUserLawyer extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF4E3DB),
+                      foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
@@ -70,6 +100,7 @@ class SignUpUserLawyer extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF4E3DB),
+                      foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
@@ -81,6 +112,9 @@ class SignUpUserLawyer extends StatelessWidget {
               ),
             ),
           ),
+
+
+
         ],
       ),
     );
