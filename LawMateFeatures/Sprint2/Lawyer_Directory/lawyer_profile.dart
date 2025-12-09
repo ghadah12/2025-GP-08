@@ -191,7 +191,7 @@ class _LawyerProfileState extends State<LawyerProfile> {
                     ),
                     const SizedBox(height: 16),
 
-                    
+
                     SizedBox(
                       height: 200,
                       child: ListView.builder(
@@ -231,17 +231,6 @@ class _LawyerProfileState extends State<LawyerProfile> {
             ),
 
 
-
-            const SizedBox(height: 24),
-            if (userType == 'legalProfessional')
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _statusButton(context, 'متاح', const Color(0xFF9C7A6B)),
-                  const SizedBox(width: 16),
-                  _statusButton(context, 'مشغول', const Color(0xFFB0A39A)),
-                ],
-              )
           ],
         ),
       ),
