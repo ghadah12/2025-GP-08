@@ -172,7 +172,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           decoration: BoxDecoration(
                             color: Color(0xFF910E00),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5), // حدود بيضاء عشان تبرز
+                            border: Border.all(color: Colors.white, width: 1.5), 
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black26,
