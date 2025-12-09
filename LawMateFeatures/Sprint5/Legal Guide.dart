@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:string_similarity/string_similarity.dart';
 
+
 class LegalGuidePage extends StatefulWidget {
   const LegalGuidePage({super.key});
 
@@ -15,7 +16,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
   final TextEditingController _controller = TextEditingController();
 
   final Map<String, String> keywordsMap = {
-    
+
     'طلاق': 'الأحوال الشخصية',
     'انفصال': 'الأحوال الشخصية',
     'فسخ زواج': 'الأحوال الشخصية',
@@ -29,7 +30,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     'وصاية': 'الأحوال الشخصية',
     'ولاية': 'الأحوال الشخصية',
 
-    
+
     'إيجار': 'العقود والإيجارات',
     'عقد': 'العقود والإيجارات',
     'مستأجر': 'العقود والإيجارات',
@@ -37,7 +38,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     'سكن': 'العقود والإيجارات',
     'شقة': 'العقود والإيجارات',
 
-   
+
     'محكمة': 'المحاكم والقضايا',
     'جلسة': 'المحاكم والقضايا',
     'دعوى': 'المحاكم والقضايا',
@@ -45,7 +46,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     'مرافعة': 'المحاكم والقضايا',
     'استئناف': 'المحاكم والقضايا',
 
-    
+
     'مخالفة': 'المخالفات المرورية',
     'غرامة': 'المخالفات المرورية',
     'مرور': 'المخالفات المرورية',
@@ -53,7 +54,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     'حوادث': 'المخالفات المرورية',
     'تجديد استمارة': 'المخالفات المرورية',
 
-    
+
     'شركة': 'الخدمات التجارية',
     'سجل تجاري': 'الخدمات التجارية',
     'علامة': 'الخدمات التجارية',
@@ -62,7 +63,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     'استثمار': 'الخدمات التجارية',
     'مؤسسة': 'الخدمات التجارية',
 
-    // 🟤 الخدمات العامة
+
     'حقوق': 'الخدمات العامة',
     'مظلمة': 'الخدمات العامة',
     'تظلم': 'الخدمات العامة',
@@ -74,10 +75,10 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
   final Map<String, List<Map<String, String>>> resources = {
     "الأحوال الشخصية": [
       {"name": "منصة ناجز", "url": "https://najiz.sa"},
-      {"name": "منصة وتراضي", "url": "https://taradhi.moj.gov.sa"},
+      {"name": "منصة تراضي", "url": "https://taradhi.moj.gov.sa"},
     ],
     "العقود والإيجارات": [
-      {"name": "منصة إيجار", "url": "https://egar.sa"},
+      {"name": "منصة إيجار", "url": "https://ejar.sa/ar"},
     ],
     "المحاكم والقضايا": [
       {"name": "ناجز - رفع الدعاوى", "url": "https://najiz.sa/applications"},
@@ -96,11 +97,11 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     ],
   };
 
-  
+
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     try {
-      debugPrint("🔗 محاولة فتح الرابط: $url"); 
+      debugPrint("🔗 محاولة فتح الرابط: $url");
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         debugPrint("✅ تم فتح الرابط بنجاح");
@@ -124,7 +125,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     String? foundCategory;
     List<String> suggestions = [];
 
-    
+
     keywordsMap.forEach((key, value) {
       if (input.contains(key) || key.contains(input)) {
         foundCategory = value;
@@ -134,13 +135,13 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     });
 
     if (foundCategory != null) {
-      
+
       _showCategoryDialog(foundCategory!);
     } else if (suggestions.isNotEmpty) {
-      
+
       _showSuggestionsDialog(suggestions);
     } else {
-      
+
       _showCategorySuggestionsDialog(resources.keys.toList());
     }
   }
@@ -277,8 +278,15 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4E3DB),
+
       appBar: AppBar(
-        title: const Text("الدليل القانوني"),
+        iconTheme: const IconThemeData(color: Colors.white),
+
+        title: const Text(
+          "الدليل القانوني",
+          style: TextStyle(color:Colors.white),
+        ),
+
         backgroundColor: const Color(0xFF052532),
         centerTitle: true,
       ),
@@ -286,19 +294,16 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            
+
             TextField(
               controller: _controller,
-              onSubmitted: (_) => _searchKeyword(), 
+              onSubmitted: (_) => _searchKeyword(),
               decoration: InputDecoration(
                 hintText: "اكتب مشكلتك (مثال: عندي جلسة محكمة)...",
                 filled: true,
                 fillColor: Colors.white,
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF052532)),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.arrow_forward, color: Color(0xFF052532)),
-                  onPressed: _searchKeyword, 
-                ),
+
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -309,7 +314,7 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
 
             const SizedBox(height: 20),
 
-           
+            
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -331,4 +336,3 @@ class _LegalGuidePageState extends State<LegalGuidePage> {
     );
   }
 }
-
