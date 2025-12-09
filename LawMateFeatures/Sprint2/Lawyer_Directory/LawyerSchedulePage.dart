@@ -23,7 +23,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
 
   bool _hasAnyCards = false;
 
- 
+
   DateTime _d(DateTime x) => DateTime(x.year, x.month, x.day);
   bool _isHolidayDay(DateTime? d) => d != null && _holidayDates.contains(_d(d));
   bool _isWorkDay(DateTime? d) => d != null && _workDays.contains(_d(d));
@@ -284,7 +284,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
     );
   }
 
- 
+
   String _fmtDate(String s) {
     try {
       final d = DateTime.parse(s);
@@ -367,7 +367,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // الأزرار رجعناها
+
                   Row(
                     children: [
                       Expanded(
@@ -540,7 +540,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
 
                     final docs = snap.data!.docs.where((doc) {
                       final d = Map<String, dynamic>.from(doc.data() as Map);
-                      final appt = Map<String, dynamic>.from((d['appointment'] ?? {}) as Map);  //1
+                      final appt = Map<String, dynamic>.from((d['appointment'] ?? {}) as Map);
                       final dateStr = (appt['date'] ?? '').toString();
                       final timeStr = (appt['time'] ?? '').toString();
                       return dateStr.isNotEmpty && timeStr.isNotEmpty;
@@ -558,7 +558,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
                       final aMap = Map<String, dynamic>.from(a.data() as Map);
                       final bMap = Map<String, dynamic>.from(b.data() as Map);
                       final am = Map<String, dynamic>.from((aMap['appointment'] ?? {}) as Map);
-                      final bm = Map<String, dynamic>.from((bMap['appointment'] ?? {}) as Map); //2
+                      final bm = Map<String, dynamic>.from((bMap['appointment'] ?? {}) as Map);
 
                       final ad = (am['date'] ?? '').toString();
                       final bd = (bm['date'] ?? '').toString();
@@ -579,7 +579,7 @@ class _LawyerSchedulePageState extends State<LawyerSchedulePage> {
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final data = Map<String, dynamic>.from(docs[i].data() as Map);
-                        final appt = Map<String, dynamic>.from((data['appointment'] ?? {}) as Map);  //3
+                        final appt = Map<String, dynamic>.from((data['appointment'] ?? {}) as Map);
 
                         final type = (data['type'] ?? '').toString();
                         final userUid = (data['user_uid'] ?? '').toString();
