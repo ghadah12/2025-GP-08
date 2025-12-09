@@ -53,7 +53,7 @@ class _RatingDialogState extends State<RatingDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context), // إغلاق النافذة بدون حفظ
+          onPressed: () => Navigator.pop(context), 
           child: const Text('إلغاء'),
         ),
         ElevatedButton(
@@ -70,9 +70,9 @@ class _RatingDialogState extends State<RatingDialog> {
               'timestamp': FieldValue.serverTimestamp(),
             });
 
-            Navigator.pop(context); // إغلاق النافذة بعد الحفظ
+            Navigator.pop(context); 
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تم إرسال تقييمك بنجاح ✅')),
+              const SnackBar(content: Text('تم إرسال تقييمك بنجاح ')),
             );
           },
           child: const Text('إرسال'),
