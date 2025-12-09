@@ -5,6 +5,7 @@ import 'SignUpUserLawyer.dart';
 import 'HomePage.dart';
 import 'logOut.dart';
 import 'ConsultationStatusPage.dart';
+import 'NotificationService.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -12,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await initializeDateFormatting('ar', null);
+  await NotificationService.init();
 
   runApp(const MyApp());
 }
