@@ -179,7 +179,7 @@ class _LogOutPageState extends State<LogOutPage> {
                         title: const Text('تقييماتي'),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {
-                          // Action to navigate to the ratings page will be added here
+                          
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const MyRatingsPage(isLawyerView: false)),);
@@ -283,7 +283,7 @@ class _LogOutPageState extends State<LogOutPage> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // زر الهوم
+
           Positioned(
             top: 20,
             left: size.width * 0.18,
@@ -294,7 +294,7 @@ class _LogOutPageState extends State<LogOutPage> {
               child: buildIconButton('assets/icons/home-svgrepo-com.svg'),
             ),
           ),
-          // زر الإعدادات
+
           Positioned(
             top: 23,
             right: size.width * 0.18,
